@@ -1,0 +1,58 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Unit Zero - JWT Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { background: #f0f0f0; padding: 20px; margin: 20px 0; }
+        button { background: #dc2626; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Unit Zero - JWT Test Page</h1>
+    <div class="info">
+        <h3>Admin Login Test</h3>
+        <p><strong>Email:</strong> admin@unitzero.com</p>
+        <p><strong>Password:</strong> admin123</p>
+        <p><strong>JWT Secret:</strong> your-super-secret-jw...</p>
+        <p><strong>Token:</strong> eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtZ...</p>
+    </div>
+    
+    <div class="info">
+        <h3>Test Login</h3>
+        <button onclick="testLogin()">Test Admin Login</button>
+        <div id="result"></div>
+    </div>
+    
+    <script>
+        async function testLogin() {
+            const result = document.getElementById('result');
+            result.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'admin@unitzero.com',
+                        password: 'admin123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    result.innerHTML = '<div class="success">✅ Login successful! Token: ' + data.token.substring(0, 50) + '...</div>';
+                } else {
+                    result.innerHTML = '<div class="error">❌ Login failed: ' + data.error + '</div>';
+                }
+            } catch (error) {
+                result.innerHTML = '<div class="error">❌ Error: ' + error.message + '</div>';
+            }
+        }
+    </script>
+</body>
+</html>
