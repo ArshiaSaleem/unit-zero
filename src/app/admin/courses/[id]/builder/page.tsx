@@ -322,6 +322,30 @@ export default function CourseBuilderPage() {
     }
   }
 
+  const handlePublishSection = async (sectionId: string, isPublished: boolean) => {
+    try {
+      const response = await fetch(`/api/admin/sections/${sectionId}/publish`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ isPublished })
+      })
+
+      if (response.ok) {
+        await fetchCourse()
+        alert(`Section ${isPublished ? 'published' : 'unpublished'} successfully!`)
+      } else {
+        const errorData = await response.json()
+        alert(`Error: ${errorData.error || 'Failed to update section status'}`)
+      }
+    } catch (error) {
+      console.error('Error updating section status:', error)
+      alert('Network error occurred while updating section status')
+    }
+  }
+
   const openSectionModal = () => {
     setShowSectionModal(true)
   }
@@ -480,6 +504,19 @@ export default function CourseBuilderPage() {
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handlePublishSection(section.id, !section.isPublished)}
+                            className={`text-sm py-1 px-3 ${
+                              section.isPublished 
+                                ? 'btn-outline text-orange-600 hover:text-orange-700 hover:bg-orange-50' 
+                                : 'btn-primary'
+                            }`}
+                          >
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            {section.isPublished ? 'Unpublish' : 'Publish'}
+                          </button>
                           <button
                             onClick={() => openEditor(section, 'section')}
                             className="btn-ghost text-sm py-1 px-3"
