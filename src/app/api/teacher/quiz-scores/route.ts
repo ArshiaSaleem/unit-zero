@@ -94,6 +94,7 @@ export async function GET(request: NextRequest) {
         const retakePermission = userData.retakePermission
         
         // Calculate actual retake count from attempts (excluding first attempt)
+        // Calculate actual retake count: if student has 3 attempts, they've used 2 retakes (1 original + 2 retakes)
         const actualRetakeCount = Math.max(0, attempts.length - 1)
         
         // Use teacher's max retakes (3) instead of quiz's maxRetakes
@@ -124,7 +125,7 @@ export async function GET(request: NextRequest) {
           })),
           retakePermission: retakePermission ? {
             id: retakePermission.id,
-            retakeCount: actualRetakeCount, // Use calculated retake count
+            retakeCount: actualRetakeCount, // Use calculated retake count from attempts
             maxRetakes: teacherMaxRetakes, // Always 3 for teachers
             isActive: retakePermission.isActive,
             allowedBy: retakePermission.allowedBy,

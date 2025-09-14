@@ -179,7 +179,9 @@ export default function QuizScoresPage() {
       'Latest Score': score.latestScore,
       'Best Score': score.bestScore,
       'Total Attempts': score.totalAttempts,
-      'All Attempts': score.allAttempts.map((attempt, index) => `Attempt ${index + 1}: ${attempt.score}%`).join(', '),
+      'All Attempts': score.allAttempts
+        .filter(attempt => attempt.score > 0 || attempt.completed)
+        .map((attempt, index) => `Attempt ${index + 1}: ${attempt.score}%`).join(', '),
       'Status': score.isPassed ? 'Passed' : 'Failed',
       'Can Retake': score.canRetake ? 'Yes' : 'No',
       'Retake Count': score.retakePermission?.retakeCount || 0,
@@ -395,19 +397,21 @@ export default function QuizScoresPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="space-y-1">
-                        {score.allAttempts.map((attempt, index) => (
-                          <div key={attempt.id} className="text-sm">
-                            <span className="text-gray-600">Attempt {index + 1}:</span>
-                            <span className={`ml-2 font-medium ${
-                              attempt.score >= score.passingScore
-                                ? 'text-green-600'
-                                : 'text-red-600'
-                            }`}>
-                              {attempt.score}%
-                            </span>
-                            {attempt.isRetake && <span className="ml-1 text-xs text-gray-500">(R)</span>}
-                          </div>
-                        ))}
+                        {score.allAttempts
+                          .filter(attempt => attempt.score > 0 || attempt.completed) // Only show actual attempts
+                          .map((attempt, index) => (
+                            <div key={attempt.id} className="text-sm">
+                              <span className="text-gray-600">Attempt {index + 1}:</span>
+                              <span className={`ml-2 font-medium ${
+                                attempt.score >= score.passingScore
+                                  ? 'text-green-600'
+                                  : 'text-red-600'
+                              }`}>
+                                {attempt.score}%
+                              </span>
+                              {attempt.isRetake && <span className="ml-1 text-xs text-gray-500">(R)</span>}
+                            </div>
+                          ))}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
