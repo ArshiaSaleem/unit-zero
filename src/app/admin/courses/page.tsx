@@ -102,7 +102,7 @@ export default function AdminCoursesPage() {
   const [showEnrollModal, setShowEnrollModal] = useState(false)
   const [enrollEmail, setEnrollEmail] = useState('')
   const [enrolling, setEnrolling] = useState(false)
-  const [enrolledStudents, setEnrolledStudents] = useState<any[]>([])
+  const [enrolledStudents, setEnrolledStudents] = useState<{ id: string; user: { id: string; firstName: string; lastName: string; email: string }; enrolledAt: string }[]>([])
   const [showStudents, setShowStudents] = useState(false)
   const [unenrolling, setUnenrolling] = useState<string | null>(null)
 
@@ -172,7 +172,7 @@ export default function AdminCoursesPage() {
       if (response.ok) {
         await fetchCourses()
         setShowCreateModal(false)
-        setFormData({ title: '', description: '', content: '', thumbnail: '' })
+        setFormData({ title: '', description: '', content: '', thumbnail: '', teacherId: '' })
       } else {
         const errorData = await response.json()
         alert(`Error: ${errorData.error || 'Failed to create course'}`)
@@ -201,7 +201,7 @@ export default function AdminCoursesPage() {
         await fetchCourses()
         setShowCreateModal(false)
         setEditingCourse(null)
-        setFormData({ title: '', description: '', content: '', thumbnail: '' })
+        setFormData({ title: '', description: '', content: '', thumbnail: '', teacherId: '' })
       } else {
         const errorData = await response.json()
         alert(`Error: ${errorData.error || 'Failed to update course'}`)
@@ -994,9 +994,9 @@ export default function AdminCoursesPage() {
                       <div key={student.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                         <div>
                           <p className="text-sm font-medium text-gray-900">
-                            {student.firstName} {student.lastName}
+                            {student.user.firstName} {student.user.lastName}
                           </p>
-                          <p className="text-xs text-gray-500">{student.email}</p>
+                          <p className="text-xs text-gray-500">{student.user.email}</p>
                         </div>
                         <span className="text-xs text-green-600 font-medium">Enrolled</span>
                       </div>

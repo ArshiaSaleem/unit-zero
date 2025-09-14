@@ -58,7 +58,7 @@ export default function QuizScoresPage() {
   const [loading, setLoading] = useState(true)
   const [filteredScores, setFilteredScores] = useState<QuizScore[]>([])
   const [searchTerm, setSearchTerm] = useState('')
-  const [filterStatus, setFilterStatus] = useState<'all' | 'passed' | 'failed' | 'can_retake'>('all')
+  const [filterStatus, setFilterStatus] = useState<'all' | 'passed' | 'failed' | 'not_attempted' | 'can_retake'>('all')
   const [selectedCourse, setSelectedCourse] = useState<string>('all')
   const [selectedQuiz, setSelectedQuiz] = useState<string>('all')
   const [updating, setUpdating] = useState<string | null>(null)
@@ -303,11 +303,12 @@ export default function QuizScoresPage() {
               <select
                 className="input-field"
                 value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value as any)}
+                onChange={(e) => setFilterStatus(e.target.value as 'all' | 'passed' | 'failed' | 'not_attempted' | 'can_retake')}
               >
                 <option value="all">All</option>
                 <option value="passed">Passed</option>
                 <option value="failed">Failed</option>
+                <option value="not_attempted">Not Attempted</option>
                 <option value="can_retake">Can Retake</option>
               </select>
             </div>

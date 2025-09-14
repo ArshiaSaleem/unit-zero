@@ -4,7 +4,7 @@ import { verifyToken } from '@/lib/auth'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const token = request.headers.get('authorization')?.replace('Bearer ', '')
@@ -18,8 +18,18 @@ export async function GET(
     }
 
     const { id } = await params
+    // First get the lesson to find its section
+    const lesson = await prisma.lesson.findUnique({
+      where: { id },
+      select: { sectionId: true }
+    })
+    
+    if (!lesson) {
+      return NextResponse.json({ error: 'Lesson not found' }, { status: 404 })
+    }
+    
     const quizzes = await prisma.quiz.findMany({
-      where: { lessonId: id }
+      where: { sectionId: lesson.sectionId }
     })
 
     return NextResponse.json(quizzes)
@@ -34,7 +44,7 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const token = request.headers.get('authorization')?.replace('Bearer ', '')
@@ -48,6 +58,16 @@ export async function POST(
     }
 
     const { id } = await params
+    // First get the lesson to find its section
+    const lesson = await prisma.lesson.findUnique({
+      where: { id },
+      select: { sectionId: true }
+    })
+    
+    if (!lesson) {
+      return NextResponse.json({ error: 'Lesson not found' }, { status: 404 })
+    }
+    
     const { 
       title, 
       description, 
@@ -72,7 +92,7 @@ export async function POST(
         settings: settings ? JSON.stringify(settings) : null,
         timeLimit,
         passingScore: passingScore || 70,
-        lessonId: id
+        sectionId: lesson.sectionId
       }
     })
 

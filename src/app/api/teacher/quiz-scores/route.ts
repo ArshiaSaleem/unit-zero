@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
       for (const [userId, userData] of userAttempts) {
         const attempts = userData.attempts
         const latestAttempt = attempts[0] // Most recent attempt
-        const bestScore = Math.max(...attempts.map(a => a.score))
+        const bestScore = Math.max(...attempts.map((a: { score: number }) => a.score))
         const retakePermission = userData.retakePermission
 
         quizScores.push({

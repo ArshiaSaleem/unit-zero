@@ -262,7 +262,7 @@ export default function TeacherDashboard() {
               <BookOpen className="h-12 w-12 mx-auto text-gray-300 mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No Courses Assigned</h3>
               <p className="text-gray-500">
-                You haven't been assigned to any courses yet. Contact your administrator.
+                You haven&apos;t been assigned to any courses yet. Contact your administrator.
               </p>
             </div>
           </div>

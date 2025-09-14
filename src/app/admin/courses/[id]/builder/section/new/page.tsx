@@ -3,12 +3,12 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { Course } from '@prisma/client'
+import { Course, Section } from '@prisma/client'
 import Link from 'next/link'
 import RichTextEditor from '@/components/RichTextEditor'
 
 type CourseWithContent = Course & {
-  sections: any[]
+  sections: Section[]
 }
 
 export default function NewSectionPage({ 
@@ -63,8 +63,8 @@ export default function NewSectionPage({
       }
       const data = await response.json()
       setCourse(data)
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "An error occurred")
     } finally {
       setLoading(false)
     }
@@ -95,8 +95,8 @@ export default function NewSectionPage({
 
       // Navigate back to course builder
       router.push(`/admin/courses/${courseId}/builder`)
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "An error occurred")
     } finally {
       setSaving(false)
     }

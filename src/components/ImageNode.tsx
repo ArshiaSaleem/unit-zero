@@ -1,12 +1,13 @@
 "use client";
 
 import { DecoratorNode, LexicalEditor, NodeKey } from "lexical";
+import { ReactElement } from "react";
 
 function ImageComponent({ src }: { src: string }) {
   return <img src={src} alt="" className="max-w-full h-auto rounded" />;
 }
 
-export class ImageNode extends DecoratorNode<JSX.Element> {
+export class ImageNode extends DecoratorNode<ReactElement> {
   __src: string;
 
   static getType() {
@@ -30,7 +31,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     return false;
   }
 
-  decorate(editor: LexicalEditor): JSX.Element {
+  decorate(editor: LexicalEditor): ReactElement {
     return <ImageComponent src={this.__src} />;
   }
 }

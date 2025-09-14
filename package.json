@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "seed": "tsx scripts/seed.ts",
@@ -35,7 +35,10 @@
     "process-lesson-content": "tsx scripts/process-lesson-content.ts",
     "verify-lesson-content": "tsx scripts/verify-lesson-content.ts",
     "update-lesson-8": "tsx scripts/update-lesson-8-only.ts",
-    "migrate-to-production": "tsx scripts/migrate-to-production.ts"
+    "migrate-to-production": "tsx scripts/migrate-to-production.ts",
+    "test-prisma": "tsx scripts/test-prisma-connection.ts",
+    "fix-any-types": "tsx scripts/fix-any-types.ts",
+    "fix-route-params": "tsx scripts/fix-route-params.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",

@@ -427,7 +427,7 @@ export default function AdminQuizScores() {
               <select
                 className="input-field"
                 value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value as any)}
+                onChange={(e) => setFilterStatus(e.target.value as 'all' | 'passed' | 'failed' | 'not_attempted' | 'can_retake')}
               >
                 <option value="all">All</option>
                 <option value="passed">Passed</option>

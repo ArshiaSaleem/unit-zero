@@ -530,7 +530,7 @@ function BulkUploadModal({ onClose, onUploadComplete }: { onClose: () => void, o
   const [emails, setEmails] = useState('')
   const [role, setRole] = useState('STUDENT')
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<any>(null)
+  const [result, setResult] = useState<{ message: string; results: { successful: Array<{ row: number; data: unknown }>; failed: Array<{ row: number; error: string }> } } | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -611,10 +611,10 @@ function BulkUploadModal({ onClose, onUploadComplete }: { onClose: () => void, o
                   </p>
                   <div className="bg-green-50 rounded-lg p-3 max-h-32 overflow-y-auto">
                     <ul className="text-green-800 text-sm space-y-1">
-                      {result.results.successful.map((email: string, index: number) => (
+                      {result.results.successful.map((item: { row: number; data: unknown }, index: number) => (
                         <li key={index} className="flex items-center gap-2">
                           <span className="w-1 h-1 bg-green-600 rounded-full"></span>
-                          {email}
+                          {item.data as string}
                         </li>
                       ))}
                     </ul>
@@ -629,10 +629,10 @@ function BulkUploadModal({ onClose, onUploadComplete }: { onClose: () => void, o
                   </p>
                   <div className="bg-red-50 rounded-lg p-3 max-h-32 overflow-y-auto">
                     <ul className="text-red-800 text-sm space-y-1">
-                      {result.results.failed.map((item: any, index: number) => (
+                      {result.results.failed.map((item: { row: number; error: string }, index: number) => (
                         <li key={index} className="flex items-center gap-2">
                           <span className="w-1 h-1 bg-red-600 rounded-full"></span>
-                          {item.email} <span className="text-red-600">({item.reason})</span>
+                          Row {item.row}: <span className="text-red-600">({item.error})</span>
                         </li>
                       ))}
                     </ul>

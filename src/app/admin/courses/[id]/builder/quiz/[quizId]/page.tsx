@@ -78,8 +78,8 @@ export default function QuizEditorPage({
         
         // Find the quiz
         const foundQuiz = courseData.sections
-          ?.flatMap(section => section.quizzes || [])
-          .find(q => q.id === quizId)
+          ?.flatMap((section: { quizzes: unknown[] }) => section.quizzes || [])
+          .find((q: { id: string }) => q.id === quizId)
         
         if (foundQuiz) {
           setQuiz(foundQuiz)
@@ -87,14 +87,17 @@ export default function QuizEditorPage({
           try {
             const rawQuestions = foundQuiz.questions ? JSON.parse(foundQuiz.questions) : []
             // Ensure questions have proper structure with id, options, and points
-            parsedQuestions = rawQuestions.map((q: any, index: number) => ({
-              id: q.id || `question-${index}`,
-              type: q.type || 'multiple-choice',
-              question: q.question || '',
-              options: q.options || ['', '', '', ''],
-              correctAnswer: q.answer || q.correctAnswer || '',
-              points: q.points || 1
-            }))
+            parsedQuestions = rawQuestions.map((q: unknown, index: number) => {
+              const question = q as Record<string, unknown>
+              return {
+                id: (question.id as string) || `question-${index}`,
+                type: (question.type as QuizQuestion['type']) || 'multiple-choice',
+                question: (question.question as string) || '',
+                options: (question.options as string[]) || ['', '', '', ''],
+                correctAnswer: (question.answer as string) || (question.correctAnswer as string) || '',
+                points: (question.points as number) || 1
+              }
+            })
           } catch (error) {
             console.error('Error parsing quiz questions:', error)
             parsedQuestions = []
@@ -197,7 +200,7 @@ export default function QuizEditorPage({
     })
   }
 
-  const updateQuestion = (index: number, field: keyof QuizQuestion, value: any) => {
+  const updateQuestion = (index: number, field: keyof QuizQuestion, value: unknown) => {
     if (!formData.questions || !Array.isArray(formData.questions)) {
       return
     }
@@ -372,7 +375,7 @@ export default function QuizEditorPage({
               </div>
             ) : (!formData.questions || !Array.isArray(formData.questions) || formData.questions.length === 0) ? (
               <div className="text-center py-8 text-gray-500">
-                <p>No questions added yet. Click "Add Question" to get started.</p>
+                <p>No questions added yet. Click &quot;Add Question&quot; to get started.</p>
               </div>
             ) : (
               <div className="space-y-6">

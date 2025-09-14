@@ -82,7 +82,7 @@ export default function CourseBuilderPage() {
   const [showLessonModal, setShowLessonModal] = useState(false)
   const [showQuizModal, setShowQuizModal] = useState(false)
   const [selectedSection, setSelectedSection] = useState<Section | null>(null)
-  const [editingItem, setEditingItem] = useState<any>(null)
+  const [editingItem, setEditingItem] = useState<Section | Lesson | Quiz | null>(null)
   const [editingType, setEditingType] = useState<'section' | 'lesson' | 'quiz' | null>(null)
 
   // Form states
@@ -336,7 +336,7 @@ export default function CourseBuilderPage() {
     setShowQuizModal(true)
   }
 
-  const openEditor = (item: any, type: 'section' | 'lesson' | 'quiz') => {
+  const openEditor = (item: Section | Lesson | Quiz, type: 'section' | 'lesson' | 'quiz') => {
     setEditingItem(item)
     setEditingType(type)
     // Navigate to dedicated editor page
@@ -571,7 +571,7 @@ export default function CourseBuilderPage() {
                                 <p className="text-sm text-gray-500">
                                   {quiz.timeLimit}min • {quiz.passingScore}% pass • 10 questions (randomized from {(() => {
                                     try {
-                                      const questions = quiz.questions ? JSON.parse(quiz.questions) : []
+                                      const questions = quiz.questions ? JSON.parse(quiz.questions as unknown as string) : []
                                       return Array.isArray(questions) ? questions.length : 0
                                     } catch {
                                       return 0
@@ -844,7 +844,7 @@ export default function CourseBuilderPage() {
                   
                   {(quizForm.questions || []).length === 0 ? (
                     <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
-                      <p>No questions added yet. Click "Add Question" to get started.</p>
+                      <p>No questions added yet. Click &quot;Add Question&quot; to get started.</p>
                     </div>
                   ) : (
                     <div className="space-y-4 max-h-96 overflow-y-auto">

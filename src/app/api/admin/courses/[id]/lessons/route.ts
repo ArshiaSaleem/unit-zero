@@ -4,7 +4,7 @@ import { verifyToken } from '@/lib/auth'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const token = request.headers.get('authorization')?.replace('Bearer ', '')
@@ -19,12 +19,16 @@ export async function GET(
 
     const { id } = await params
     const lessons = await prisma.lesson.findMany({
-      where: { courseId: id },
+      where: { 
+        section: {
+          courseId: id
+        }
+      },
       include: {
+        section: true,
         subLessons: {
           orderBy: { order: 'asc' }
-        },
-        quizzes: true
+        }
       },
       orderBy: { order: 'asc' }
     })
@@ -41,7 +45,7 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const token = request.headers.get('authorization')?.replace('Bearer ', '')
@@ -55,11 +59,18 @@ export async function POST(
     }
 
     const { id } = await params
-    const { title, content, order } = await request.json()
+    const { title, content, order, sectionId } = await request.json()
 
     if (!title) {
       return NextResponse.json(
         { error: 'Title is required' },
+        { status: 400 }
+      )
+    }
+
+    if (!sectionId) {
+      return NextResponse.json(
+        { error: 'Section ID is required' },
         { status: 400 }
       )
     }
@@ -69,13 +80,13 @@ export async function POST(
         title,
         content,
         order: order || 0,
-        courseId: id
+        sectionId: sectionId
       },
       include: {
+        section: true,
         subLessons: {
           orderBy: { order: 'asc' }
-        },
-        quizzes: true
+        }
       }
     })
 

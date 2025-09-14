@@ -77,8 +77,8 @@ export default function LessonEditorPage({
         
         // Find the lesson
         const foundLesson = courseData.sections
-          ?.flatMap(section => section.lessons || [])
-          .find(l => l.id === lessonId)
+          ?.flatMap((section: { lessons: unknown[] }) => section.lessons || [])
+          .find((l: { id: string }) => l.id === lessonId)
         
         console.log('Found lesson:', foundLesson)
         

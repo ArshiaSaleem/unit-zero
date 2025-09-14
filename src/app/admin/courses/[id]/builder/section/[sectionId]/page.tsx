@@ -75,8 +75,8 @@ export default function SectionEditorPage({
       } else {
         setError('Section not found')
       }
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)
     }
@@ -108,8 +108,8 @@ export default function SectionEditorPage({
 
       setIsEditing(false)
       fetchCourse() // Refresh course data
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
     }
   }
 
@@ -134,8 +134,8 @@ export default function SectionEditorPage({
 
       // Navigate back to course builder
       router.push(`/admin/courses/${courseId}/builder`)
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
     }
   }
 
@@ -256,28 +256,28 @@ export default function SectionEditorPage({
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div className="bg-white border border-gray-200 rounded-lg p-4">
-                  <h4 className="text-lg font-semibold text-gray-700 mb-2">Lessons ({section.lessons.length})</h4>
-                  {section.lessons.length === 0 ? (
-                    <p className="text-sm text-gray-500">No lessons in this section.</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {section.lessons.map((lesson) => (
-                        <div key={lesson.id} className="bg-gray-50 border border-gray-100 rounded p-2">
-                          <h5 className="font-medium text-gray-800">{lesson.title}</h5>
-                          <p className="text-sm text-gray-600">{lesson.content || 'No content.'}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+        <h4 className="text-lg font-semibold text-gray-700 mb-2">Lessons ({(section as { lessons?: { id: string; title: string; content?: string }[] }).lessons?.length || 0})</h4>
+        {(section as { lessons?: { id: string; title: string; content?: string }[] }).lessons?.length === 0 ? (
+          <p className="text-sm text-gray-500">No lessons in this section.</p>
+        ) : (
+          <div className="space-y-2">
+            {(section as { lessons?: { id: string; title: string; content?: string }[] }).lessons?.map((lesson: { id: string; title: string; content?: string }) => (
+              <div key={lesson.id} className="bg-gray-50 border border-gray-100 rounded p-2">
+                <h5 className="font-medium text-gray-800">{lesson.title}</h5>
+                <p className="text-sm text-gray-600">{lesson.content || 'No content.'}</p>
+              </div>
+            ))}
+          </div>
+        )}
                 </div>
 
                 <div className="bg-white border border-gray-200 rounded-lg p-4">
-                  <h4 className="text-lg font-semibold text-gray-700 mb-2">Quizzes ({section.quizzes.length})</h4>
-                  {section.quizzes.length === 0 ? (
+                  <h4 className="text-lg font-semibold text-gray-700 mb-2">Quizzes ({(section as { quizzes?: { id: string; title: string; description?: string; timeLimit: number; passingScore: number }[] }).quizzes?.length || 0})</h4>
+                  {(section as { quizzes?: { id: string; title: string; description?: string; timeLimit: number; passingScore: number }[] }).quizzes?.length === 0 ? (
                     <p className="text-sm text-gray-500">No quizzes in this section.</p>
                   ) : (
                     <div className="space-y-2">
-                      {section.quizzes.map((quiz) => (
+                      {(section as { quizzes?: { id: string; title: string; description?: string; timeLimit: number; passingScore: number }[] }).quizzes?.map((quiz: { id: string; title: string; description?: string; timeLimit: number; passingScore: number }) => (
                         <div key={quiz.id} className="bg-gray-50 border border-gray-100 rounded p-2">
                           <h5 className="font-medium text-gray-800">{quiz.title}</h5>
                           <p className="text-sm text-gray-600">

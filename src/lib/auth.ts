@@ -33,11 +33,11 @@ export function generateToken(user: User): string {
 
 export function verifyToken(token: string): User | null {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string; email: string; role: string }
     return {
       id: decoded.id,
       email: decoded.email,
-      role: decoded.role,
+      role: decoded.role as 'ADMIN' | 'TEACHER' | 'STUDENT',
       mustChangePassword: false // This will be fetched from DB when needed
     }
   } catch (error) {
@@ -64,8 +64,8 @@ export async function authenticateUser(email: string, password: string): Promise
     id: user.id,
     email: user.email,
     role: user.role,
-    firstName: user.firstName,
-    lastName: user.lastName,
+    firstName: user.firstName || undefined,
+    lastName: user.lastName || undefined,
     mustChangePassword: user.mustChangePassword
   }
 }

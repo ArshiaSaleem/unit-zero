@@ -133,17 +133,17 @@ export async function POST(
       if (!userAnswer) continue
 
       switch (question.type) {
-        case 'multiple_choice':
+        case 'multiple-choice':
           if (userAnswer.answer === question.correctAnswer) {
             correctAnswers++
           }
           break
-        case 'true_false':
+        case 'true-false':
           if (userAnswer.answer === question.correctAnswer) {
             correctAnswers++
           }
           break
-        case 'short_answer':
+        case 'short-answer':
           if (userAnswer.answer && 
               question.correctAnswer && 
               userAnswer.answer.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim()) {

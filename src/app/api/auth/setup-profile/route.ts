@@ -16,16 +16,16 @@ export async function POST(request: NextRequest) {
     const token = authHeader.substring(7)
     
     // Verify the JWT token
-    let decoded: any
+    let decoded: { id: string; email: string; role: string }
     try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET!)
+      decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string; email: string; role: string }
     } catch (error) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
     // Get the user from the database
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId }
+      where: { id: decoded.id }
     })
 
     if (!user) {

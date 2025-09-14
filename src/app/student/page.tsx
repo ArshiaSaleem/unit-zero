@@ -29,7 +29,7 @@ interface Course {
     }>
   }>
   isEnrolled: boolean
-  enrollment: any
+  enrollment: { course: Course } | null
   _count: {
     enrollments: number
   }
@@ -214,7 +214,7 @@ export default function StudentDashboard() {
           <div className="card text-center py-12">
             <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No Course Enrolled</h3>
-            <p className="text-gray-600 mb-4">You haven't been enrolled in any course yet.</p>
+            <p className="text-gray-600 mb-4">You haven&apos;t been enrolled in any course yet.</p>
             <p className="text-sm text-gray-500">Please contact your administrator to get enrolled in a course.</p>
           </div>
         )}
