@@ -179,6 +179,7 @@ export default function QuizScoresPage() {
       'Latest Score': score.latestScore,
       'Best Score': score.bestScore,
       'Total Attempts': score.totalAttempts,
+      'All Attempts': score.allAttempts.map((attempt, index) => `Attempt ${index + 1}: ${attempt.score}%`).join(', '),
       'Status': score.isPassed ? 'Passed' : 'Failed',
       'Can Retake': score.canRetake ? 'Yes' : 'No',
       'Retake Count': score.retakePermission?.retakeCount || 0,
@@ -393,36 +394,21 @@ export default function QuizScoresPage() {
                       <div className="text-sm text-gray-500">{score.sectionTitle}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        Latest: <span className="font-medium">{score.latestScore}%</span>
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        Best: <span className="font-medium">{score.bestScore}%</span>
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        Attempts: {score.totalAttempts}
-                      </div>
-                      {score.allAttempts.length > 1 && (
-                        <div className="mt-2">
-                          <div className="text-xs text-gray-400 mb-1">All Scores:</div>
-                          <div className="flex flex-wrap gap-1">
-                            {score.allAttempts.map((attempt, index) => (
-                              <span
-                                key={attempt.id}
-                                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                  attempt.score >= score.passingScore
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-red-100 text-red-800'
-                                }`}
-                                title={`Attempt ${index + 1} - ${new Date(attempt.createdAt).toLocaleDateString()}`}
-                              >
-                                {attempt.score}%
-                                {attempt.isRetake && <span className="ml-1">(R)</span>}
-                              </span>
-                            ))}
+                      <div className="space-y-1">
+                        {score.allAttempts.map((attempt, index) => (
+                          <div key={attempt.id} className="text-sm">
+                            <span className="text-gray-600">Attempt {index + 1}:</span>
+                            <span className={`ml-2 font-medium ${
+                              attempt.score >= score.passingScore
+                                ? 'text-green-600'
+                                : 'text-red-600'
+                            }`}>
+                              {attempt.score}%
+                            </span>
+                            {attempt.isRetake && <span className="ml-1 text-xs text-gray-500">(R)</span>}
                           </div>
-                        </div>
-                      )}
+                        ))}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -445,7 +431,7 @@ export default function QuizScoresPage() {
                       {score.retakePermission ? (
                         <div>
                           <div className="text-sm text-gray-900">
-                            {score.retakePermission.retakeCount}/{score.retakePermission.maxRetakes} used
+                            {score.retakePermission.retakeCount}/{score.retakePermission.maxRetakes} retakes used
                           </div>
                           <div className="text-xs text-gray-500">
                             {score.canRetake ? 'Can retake' : 'No retakes left'}

@@ -92,6 +92,12 @@ export async function GET(request: NextRequest) {
         const latestAttempt = attempts[0] // Most recent attempt
         const bestScore = Math.max(...attempts.map((a: { score: number }) => a.score))
         const retakePermission = userData.retakePermission
+        
+        // Calculate actual retake count from attempts (excluding first attempt)
+        const actualRetakeCount = Math.max(0, attempts.length - 1)
+        
+        // Use teacher's max retakes (3) instead of quiz's maxRetakes
+        const teacherMaxRetakes = 3
 
         quizScores.push({
           id: `${quiz.id}-${userId}`,
@@ -102,7 +108,7 @@ export async function GET(request: NextRequest) {
           quizId: quiz.id,
           quizTitle: quiz.title,
           passingScore: quiz.passingScore,
-          maxRetakes: quiz.maxRetakes,
+          maxRetakes: teacherMaxRetakes, // Always 3 for teachers
           user: userData.user,
           latestScore: latestAttempt.score,
           bestScore: bestScore,
@@ -118,14 +124,14 @@ export async function GET(request: NextRequest) {
           })),
           retakePermission: retakePermission ? {
             id: retakePermission.id,
-            retakeCount: retakePermission.retakeCount,
-            maxRetakes: retakePermission.maxRetakes,
+            retakeCount: actualRetakeCount, // Use calculated retake count
+            maxRetakes: teacherMaxRetakes, // Always 3 for teachers
             isActive: retakePermission.isActive,
             allowedBy: retakePermission.allowedBy,
             createdAt: retakePermission.createdAt
           } : null,
           canRetake: retakePermission ? 
-            retakePermission.isActive && retakePermission.retakeCount < retakePermission.maxRetakes :
+            retakePermission.isActive && actualRetakeCount < teacherMaxRetakes :
             false
         })
       }
@@ -227,4 +233,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
-// Force deployment 3 - Fix teacher retake limits
+// MAJOR FIX: Force deployment 4 - Fix retake limits and UI
