@@ -346,6 +346,54 @@ export default function CourseBuilderPage() {
     }
   }
 
+  const handlePublishLesson = async (lessonId: string, isPublished: boolean) => {
+    try {
+      const response = await fetch(`/api/admin/lessons/${lessonId}/publish`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ isPublished })
+      })
+
+      if (response.ok) {
+        await fetchCourse()
+        alert(`Lesson ${isPublished ? 'published' : 'unpublished'} successfully!`)
+      } else {
+        const errorData = await response.json()
+        alert(`Error: ${errorData.error || 'Failed to update lesson status'}`)
+      }
+    } catch (error) {
+      console.error('Error updating lesson status:', error)
+      alert('Network error occurred while updating lesson status')
+    }
+  }
+
+  const handlePublishQuiz = async (quizId: string, isPublished: boolean) => {
+    try {
+      const response = await fetch(`/api/admin/quizzes/${quizId}/publish`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ isPublished })
+      })
+
+      if (response.ok) {
+        await fetchCourse()
+        alert(`Quiz ${isPublished ? 'published' : 'unpublished'} successfully!`)
+      } else {
+        const errorData = await response.json()
+        alert(`Error: ${errorData.error || 'Failed to update quiz status'}`)
+      }
+    } catch (error) {
+      console.error('Error updating quiz status:', error)
+      alert('Network error occurred while updating quiz status')
+    }
+  }
+
   const openSectionModal = () => {
     setShowSectionModal(true)
   }
@@ -574,6 +622,20 @@ export default function CourseBuilderPage() {
                                 </p>
                               </div>
                               <button
+                                onClick={() => handlePublishLesson(lesson.id, !lesson.isPublished)}
+                                className={`text-sm py-1 px-3 ${
+                                  lesson.isPublished 
+                                    ? 'btn-outline text-orange-600 hover:text-orange-700 hover:bg-orange-50' 
+                                    : 'btn-primary'
+                                }`}
+                                title={lesson.isPublished ? 'Unpublish lesson' : 'Publish lesson'}
+                              >
+                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                {lesson.isPublished ? 'Unpublish' : 'Publish'}
+                              </button>
+                              <button
                                 onClick={() => openEditor(lesson, 'lesson')}
                                 className="btn-ghost text-sm py-1 px-3"
                                 title="Edit lesson"
@@ -616,6 +678,20 @@ export default function CourseBuilderPage() {
                                   })()} available)
                                 </p>
                               </div>
+                              <button
+                                onClick={() => handlePublishQuiz(quiz.id, !quiz.isPublished)}
+                                className={`text-sm py-1 px-3 ${
+                                  quiz.isPublished 
+                                    ? 'btn-outline text-orange-600 hover:text-orange-700 hover:bg-orange-50' 
+                                    : 'btn-primary'
+                                }`}
+                                title={quiz.isPublished ? 'Unpublish quiz' : 'Publish quiz'}
+                              >
+                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                {quiz.isPublished ? 'Unpublish' : 'Publish'}
+                              </button>
                               <button
                                 onClick={() => openEditor(quiz, 'quiz')}
                                 className="btn-ghost text-sm py-1 px-3"
