@@ -11,7 +11,7 @@ const productionPrisma = new PrismaClient({
 
 async function checkProductionData() {
   try {
-    console.log('🔍 Checking production database data...')
+    console.log('🔍 Checking production database data... (Updated)')
     
     const userCount = await productionPrisma.user.count()
     const courseCount = await productionPrisma.course.count()
