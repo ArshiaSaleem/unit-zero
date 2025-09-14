@@ -40,6 +40,13 @@ interface QuizScore {
   totalAttempts: number
   isPassed: boolean
   latestAttemptDate: string
+  allAttempts: Array<{
+    id: string
+    score: number
+    completed: boolean
+    isRetake: boolean
+    createdAt: string
+  }>
   retakePermission: {
     id: string
     retakeCount: number
@@ -395,6 +402,27 @@ export default function QuizScoresPage() {
                       <div className="text-sm text-gray-500">
                         Attempts: {score.totalAttempts}
                       </div>
+                      {score.allAttempts.length > 1 && (
+                        <div className="mt-2">
+                          <div className="text-xs text-gray-400 mb-1">All Scores:</div>
+                          <div className="flex flex-wrap gap-1">
+                            {score.allAttempts.map((attempt, index) => (
+                              <span
+                                key={attempt.id}
+                                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                  attempt.score >= score.passingScore
+                                    ? 'bg-green-100 text-green-800'
+                                    : 'bg-red-100 text-red-800'
+                                }`}
+                                title={`Attempt ${index + 1} - ${new Date(attempt.createdAt).toLocaleDateString()}`}
+                              >
+                                {attempt.score}%
+                                {attempt.isRetake && <span className="ml-1">(R)</span>}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -429,23 +457,43 @@ export default function QuizScoresPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center gap-2">
-                        {!score.retakePermission && !score.isPassed && (
-                          <button
-                            onClick={() => handleRetakeAction('grant_retake', score.user.id, score.quizId)}
-                            disabled={updating === `${score.user.id}-${score.quizId}`}
-                            className="text-blue-600 hover:text-blue-900 disabled:opacity-50"
-                          >
-                            <RotateCcw className="h-4 w-4" />
-                          </button>
+                        {!score.isPassed && (
+                          <>
+                            {!score.retakePermission ? (
+                              <button
+                                onClick={() => handleRetakeAction('grant_retake', score.user.id, score.quizId)}
+                                disabled={updating === `${score.user.id}-${score.quizId}`}
+                                className="btn-primary text-xs py-1 px-3 disabled:opacity-50"
+                              >
+                                {updating === `${score.user.id}-${score.quizId}` ? (
+                                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                                ) : (
+                                  'Grant Retake'
+                                )}
+                              </button>
+                            ) : score.retakePermission.isActive && score.canRetake ? (
+                              <button
+                                onClick={() => handleRetakeAction('revoke_retake', score.user.id, score.quizId)}
+                                disabled={updating === `${score.user.id}-${score.quizId}`}
+                                className="btn-outline text-xs py-1 px-3 text-red-600 border-red-600 hover:bg-red-50 disabled:opacity-50"
+                              >
+                                {updating === `${score.user.id}-${score.quizId}` ? (
+                                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-red-600"></div>
+                                ) : (
+                                  'Revoke Retake'
+                                )}
+                              </button>
+                            ) : (
+                              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                                Max Retakes Used
+                              </span>
+                            )}
+                          </>
                         )}
-                        {score.retakePermission && score.retakePermission.isActive && (
-                          <button
-                            onClick={() => handleRetakeAction('revoke_retake', score.user.id, score.quizId)}
-                            disabled={updating === `${score.user.id}-${score.quizId}`}
-                            className="text-red-600 hover:text-red-900 disabled:opacity-50"
-                          >
-                            <XCircle className="h-4 w-4" />
-                          </button>
+                        {score.isPassed && (
+                          <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
+                            Passed
+                          </span>
                         )}
                       </div>
                     </td>

@@ -109,6 +109,13 @@ export async function GET(request: NextRequest) {
           totalAttempts: attempts.length,
           isPassed: latestAttempt.score >= quiz.passingScore,
           latestAttemptDate: latestAttempt.createdAt,
+          allAttempts: attempts.map(attempt => ({
+            id: attempt.id,
+            score: attempt.score,
+            completed: attempt.completed,
+            isRetake: attempt.isRetake,
+            createdAt: attempt.createdAt
+          })),
           retakePermission: retakePermission ? {
             id: retakePermission.id,
             retakeCount: retakePermission.retakeCount,
@@ -156,7 +163,7 @@ export async function POST(request: NextRequest) {
         },
         update: {
           isActive: true,
-          maxRetakes: maxRetakes || 3,
+          maxRetakes: Math.min(maxRetakes || 3, 3), // Cap at 3 for teachers
           allowedBy: user.id,
           retakeCount: 0
         },
@@ -164,7 +171,7 @@ export async function POST(request: NextRequest) {
           userId,
           quizId,
           allowedBy: user.id,
-          maxRetakes: maxRetakes || 3,
+          maxRetakes: Math.min(maxRetakes || 3, 3), // Cap at 3 for teachers
           isActive: true
         }
       })
@@ -204,7 +211,7 @@ export async function POST(request: NextRequest) {
           allowedBy: user.id
         },
         data: {
-          maxRetakes: maxRetakes
+          maxRetakes: Math.min(maxRetakes, 3) // Cap at 3 for teachers
         }
       })
 
