@@ -1,0 +1,186 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  password          String
+  role              Role     @default(STUDENT)
+  firstName         String?
+  lastName          String?
+  isActive          Boolean  @default(true)
+  mustChangePassword Boolean @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  assignedCourses   Course[]
+  enrollments       CourseEnrollment[]
+  quizAttempts      QuizAttempt[]
+  retakePermissions QuizRetakePermission[]
+  grantedRetakePermissions QuizRetakePermission[] @relation("RetakePermissionGrantedBy")
+
+  @@map("users")
+}
+
+model Course {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  content     String?     // Rich text content
+  thumbnail   String?     // Image URL
+  isPublished Boolean     @default(false)
+  teacherId   String?     // Assigned teacher
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Relations
+  teacher     User?       @relation(fields: [teacherId], references: [id], onDelete: SetNull)
+  sections    Section[]
+  enrollments CourseEnrollment[]
+
+  @@map("courses")
+}
+
+model Section {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  order       Int       @default(0)
+  isPublished Boolean   @default(false)
+  isLocked    Boolean   @default(false)
+  courseId    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons     Lesson[]
+  quizzes     Quiz[]
+
+  @@map("sections")
+}
+
+model Lesson {
+  id          String    @id @default(cuid())
+  title       String
+  content     String?   // Rich text content
+  order       Int       @default(0)
+  isPublished Boolean   @default(false)
+  isLocked    Boolean   @default(false)
+  sectionId   String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  section     Section   @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  subLessons  SubLesson[]
+
+  @@map("lessons")
+}
+
+model SubLesson {
+  id          String   @id @default(cuid())
+  title       String
+  content     String?  // Rich text content
+  order       Int      @default(0)
+  isPublished Boolean  @default(false)
+  lessonId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@map("sub_lessons")
+}
+
+model Quiz {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  questions   String      // JSON string of questions
+  settings    String?     // JSON string of quiz settings
+  timeLimit   Int?        // Time limit in minutes
+  passingScore Int        @default(70) // Passing percentage
+  maxRetakes  Int         @default(3) // Maximum retakes allowed by teacher
+  isPublished Boolean     @default(false)
+  isLocked    Boolean     @default(false)
+  sectionId   String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Relations
+  section     Section     @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  attempts    QuizAttempt[]
+  retakePermissions QuizRetakePermission[]
+
+  @@map("quizzes")
+}
+
+model QuizAttempt {
+  id        String   @id @default(cuid())
+  userId    String
+  quizId    String
+  answers   String   // JSON string of user answers
+  score     Int      // Percentage score
+  completed Boolean  @default(false)
+  isRetake  Boolean  @default(false) // Whether this is a retake attempt
+  createdAt DateTime @default(now())
+  
+  // Relations
+  quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("quiz_attempts")
+}
+
+model QuizRetakePermission {
+  id        String   @id @default(cuid())
+  userId    String
+  quizId    String
+  allowedBy String   // Teacher ID who granted permission
+  retakeCount Int    @default(0) // Number of retakes used
+  maxRetakes Int     @default(3) // Max retakes allowed for this student
+  isActive  Boolean  @default(true) // Whether permission is still active
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teacher   User     @relation("RetakePermissionGrantedBy", fields: [allowedBy], references: [id], onDelete: Cascade)
+
+  @@unique([userId, quizId])
+  @@map("quiz_retake_permissions")
+}
+
+model CourseEnrollment {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  enrolledAt DateTime @default(now())
+  completed Boolean  @default(false)
+  
+  // Relations
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@map("course_enrollments")
+}
+
+enum Role {
+  ADMIN
+  TEACHER
+  STUDENT
+}
