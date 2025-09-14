@@ -99,9 +99,9 @@ export async function POST(
     }
 
     // Parse quiz questions
-    let questions
+    let allQuestions
     try {
-      questions = JSON.parse(quiz.questions)
+      allQuestions = JSON.parse(quiz.questions)
     } catch (error) {
       return NextResponse.json(
         { error: 'Invalid quiz format' },
@@ -109,18 +109,22 @@ export async function POST(
       )
     }
 
-    if (!Array.isArray(questions)) {
+    if (!Array.isArray(allQuestions)) {
       return NextResponse.json(
         { error: 'Invalid quiz questions format' },
         { status: 400 }
       )
     }
 
+    // Generate the same randomized quiz that the student saw
+    // This ensures we're scoring against the same questions the student answered
+    const randomizedQuestions = generateRandomizedQuiz(allQuestions, 10)
+
     // Convert student answers from randomized format back to original format
-    const originalAnswers = mapStudentAnswers(questions, answers)
+    const originalAnswers = mapStudentAnswers(randomizedQuestions, answers)
 
     // Convert randomized questions back to original format for scoring
-    const originalQuestions = convertRandomizedToOriginal(questions)
+    const originalQuestions = convertRandomizedToOriginal(randomizedQuestions)
 
     // Calculate score using original questions and mapped answers
     let correctAnswers = 0
