@@ -21,6 +21,18 @@ export async function PATCH(
 
     const { isPublished } = await request.json()
 
+    // First check if section exists
+    const existingSection = await prisma.section.findUnique({
+      where: { id }
+    })
+
+    if (!existingSection) {
+      return NextResponse.json(
+        { error: 'Section not found' },
+        { status: 404 }
+      )
+    }
+
     const section = await prisma.section.update({
       where: { id },
       data: { isPublished },
@@ -38,7 +50,10 @@ export async function PATCH(
   } catch (error) {
     console.error('Error updating section publish status:', error)
     return NextResponse.json(
-      { error: 'Failed to update section publish status' },
+      { 
+        error: 'Failed to update section publish status',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
   }
