@@ -18,7 +18,7 @@ async function checkProductionData() {
     const sectionCount = await productionPrisma.section.count()
     const lessonCount = await productionPrisma.lesson.count()
     const quizCount = await productionPrisma.quiz.count()
-    const enrollmentCount = await productionPrisma.enrollment.count()
+    const enrollmentCount = await productionPrisma.courseEnrollment.count()
     
     console.log(`📊 Production Database Status:`)
     console.log(`   Users: ${userCount}`)
