@@ -69,15 +69,19 @@ export function shuffleQuestionOptions(question: QuizQuestion): RandomizedQuesti
 /**
  * Generates a randomized quiz for a student
  * - Selects 10 random questions from available questions
- * - Shuffles options for multiple choice questions
- * - Maintains correct answer tracking for scoring
+ * - Does NOT shuffle options to ensure accurate scoring
  */
 export function generateRandomizedQuiz(questions: QuizQuestion[], questionCount: number = 10): RandomizedQuestion[] {
   // Select random questions
   const selectedQuestions = selectRandomQuestions(questions, questionCount)
   
-  // Shuffle options for each question
-  return selectedQuestions.map(question => shuffleQuestionOptions(question))
+  // Return questions without shuffling options to ensure accurate scoring
+  return selectedQuestions.map(question => ({
+    ...question,
+    shuffledOptions: question.options || [],
+    originalCorrectAnswer: question.correctAnswer,
+    correctAnswer: question.correctAnswer
+  }))
 }
 
 /**
