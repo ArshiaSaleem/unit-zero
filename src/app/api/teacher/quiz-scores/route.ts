@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
           latestScore: latestAttempt.score,
           bestScore: bestScore,
           totalAttempts: attempts.length,
-          isPassed: latestAttempt.score >= quiz.passingScore,
+          isPassed: bestScore >= quiz.passingScore,
           latestAttemptDate: latestAttempt.createdAt,
           allAttempts: attempts.map((attempt: any) => ({
             id: attempt.id,

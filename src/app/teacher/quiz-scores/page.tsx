@@ -366,9 +366,6 @@ export default function QuizScoresPage() {
                     Status
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Retake Info
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -437,14 +434,6 @@ export default function QuizScoresPage() {
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
                         Passing: {score.passingScore}%
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {score.allAttempts.filter(attempt => attempt.score > 0).length} attempts
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {score.canRetake ? 'Can retake' : 'No retakes left'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
