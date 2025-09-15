@@ -80,6 +80,9 @@ export default function TeacherDashboard() {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set())
   const [expandedLessons, setExpandedLessons] = useState<Set<string>>(new Set())
   const [updating, setUpdating] = useState<string | null>(null)
+  const [selectedLesson, setSelectedLesson] = useState<string | null>(null)
+  const [selectedQuiz, setSelectedQuiz] = useState<string | null>(null)
+  const [viewingContent, setViewingContent] = useState<'lesson' | 'quiz' | null>(null)
 
   useEffect(() => {
     if (!user || user.role !== 'TEACHER') {
@@ -155,6 +158,48 @@ export default function TeacherDashboard() {
     } finally {
       setUpdating(null)
     }
+  }
+
+  const viewLesson = (lessonId: string) => {
+    setSelectedLesson(lessonId)
+    setSelectedQuiz(null)
+    setViewingContent('lesson')
+  }
+
+  const viewQuiz = (quizId: string) => {
+    setSelectedQuiz(quizId)
+    setSelectedLesson(null)
+    setViewingContent('quiz')
+  }
+
+  const closeContentView = () => {
+    setSelectedLesson(null)
+    setSelectedQuiz(null)
+    setViewingContent(null)
+  }
+
+  // Helper function to find current lesson
+  const getCurrentLesson = () => {
+    if (!selectedLesson) return null
+    for (const course of courses) {
+      for (const section of course.sections) {
+        const lesson = section.lessons.find(l => l.id === selectedLesson)
+        if (lesson) return { ...lesson, courseTitle: course.title, sectionTitle: section.title }
+      }
+    }
+    return null
+  }
+
+  // Helper function to find current quiz
+  const getCurrentQuiz = () => {
+    if (!selectedQuiz) return null
+    for (const course of courses) {
+      for (const section of course.sections) {
+        const quiz = section.quizzes.find(q => q.id === selectedQuiz)
+        if (quiz) return { ...quiz, courseTitle: course.title, sectionTitle: section.title }
+      }
+    }
+    return null
   }
 
   if (!user) {
@@ -358,24 +403,33 @@ export default function TeacherDashboard() {
                                       </span>
                                     )}
                                   </button>
-                                  <button
-                                    onClick={() => toggleLock('lesson', lesson.id, lesson.isLocked)}
-                                    disabled={updating === lesson.id}
-                                    className={`btn-sm flex items-center gap-2 ${
-                                      lesson.isLocked 
-                                        ? 'btn-outline text-red-600 hover:text-red-700' 
-                                        : 'btn-outline text-green-600 hover:text-green-700'
-                                    }`}
-                                  >
-                                    {updating === lesson.id ? (
-                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                                    ) : lesson.isLocked ? (
-                                      <Lock className="h-4 w-4" />
-                                    ) : (
-                                      <Unlock className="h-4 w-4" />
-                                    )}
-                                    {lesson.isLocked ? 'Locked' : 'Unlocked'}
-                                  </button>
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      onClick={() => viewLesson(lesson.id)}
+                                      className="btn-sm btn-outline text-blue-600 hover:text-blue-700 flex items-center gap-2"
+                                    >
+                                      <Eye className="h-4 w-4" />
+                                      View
+                                    </button>
+                                    <button
+                                      onClick={() => toggleLock('lesson', lesson.id, lesson.isLocked)}
+                                      disabled={updating === lesson.id}
+                                      className={`btn-sm flex items-center gap-2 ${
+                                        lesson.isLocked 
+                                          ? 'btn-outline text-red-600 hover:text-red-700' 
+                                          : 'btn-outline text-green-600 hover:text-green-700'
+                                      }`}
+                                    >
+                                      {updating === lesson.id ? (
+                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                                      ) : lesson.isLocked ? (
+                                        <Lock className="h-4 w-4" />
+                                      ) : (
+                                        <Unlock className="h-4 w-4" />
+                                      )}
+                                      {lesson.isLocked ? 'Locked' : 'Unlocked'}
+                                    </button>
+                                  </div>
                                 </div>
                                 
                                 {expandedLessons.has(lesson.id) && lesson.subLessons.length > 0 && (
@@ -404,24 +458,33 @@ export default function TeacherDashboard() {
                                       {quiz.timeLimit ? `${quiz.timeLimit}min` : 'No time limit'} • {quiz.passingScore}% pass
                                     </span>
                                   </div>
-                                  <button
-                                    onClick={() => toggleLock('quiz', quiz.id, quiz.isLocked)}
-                                    disabled={updating === quiz.id}
-                                    className={`btn-sm flex items-center gap-2 ${
-                                      quiz.isLocked 
-                                        ? 'btn-outline text-red-600 hover:text-red-700' 
-                                        : 'btn-outline text-green-600 hover:text-green-700'
-                                    }`}
-                                  >
-                                    {updating === quiz.id ? (
-                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                                    ) : quiz.isLocked ? (
-                                      <Lock className="h-4 w-4" />
-                                    ) : (
-                                      <Unlock className="h-4 w-4" />
-                                    )}
-                                    {quiz.isLocked ? 'Locked' : 'Unlocked'}
-                                  </button>
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      onClick={() => viewQuiz(quiz.id)}
+                                      className="btn-sm btn-outline text-blue-600 hover:text-blue-700 flex items-center gap-2"
+                                    >
+                                      <Eye className="h-4 w-4" />
+                                      View
+                                    </button>
+                                    <button
+                                      onClick={() => toggleLock('quiz', quiz.id, quiz.isLocked)}
+                                      disabled={updating === quiz.id}
+                                      className={`btn-sm flex items-center gap-2 ${
+                                        quiz.isLocked 
+                                          ? 'btn-outline text-red-600 hover:text-red-700' 
+                                          : 'btn-outline text-green-600 hover:text-green-700'
+                                      }`}
+                                    >
+                                      {updating === quiz.id ? (
+                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                                      ) : quiz.isLocked ? (
+                                        <Lock className="h-4 w-4" />
+                                      ) : (
+                                        <Unlock className="h-4 w-4" />
+                                      )}
+                                      {quiz.isLocked ? 'Locked' : 'Unlocked'}
+                                    </button>
+                                  </div>
                                 </div>
                                 {quiz.description && (
                                   <p className="text-sm text-gray-600 mt-1 ml-6">{quiz.description}</p>
@@ -439,6 +502,93 @@ export default function TeacherDashboard() {
           </div>
         )}
       </main>
+
+      {/* Content View Modal */}
+      {viewingContent && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div className="flex items-center gap-3">
+                {viewingContent === 'lesson' ? (
+                  <FileText className="h-6 w-6 text-[#792024]" />
+                ) : (
+                  <Clock className="h-6 w-6 text-[#792024]" />
+                )}
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">
+                    {viewingContent === 'lesson' ? getCurrentLesson()?.title : getCurrentQuiz()?.title}
+                  </h2>
+                  <p className="text-gray-600">
+                    {viewingContent === 'lesson' ? getCurrentLesson()?.sectionTitle : getCurrentQuiz()?.sectionTitle}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={closeContentView}
+                className="btn-ghost p-2 hover:bg-gray-100 rounded-lg"
+              >
+                <XCircle className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {viewingContent === 'lesson' && getCurrentLesson() && (
+                <div className="prose max-w-none">
+                  {getCurrentLesson()?.content ? (
+                    <div 
+                      dangerouslySetInnerHTML={{ __html: getCurrentLesson()?.content || '' }}
+                      className="rich-text-preview"
+                      style={{
+                        lineHeight: '1.6',
+                        fontSize: '16px',
+                        fontFamily: 'system-ui, -apple-system, sans-serif'
+                      }}
+                    />
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <FileText className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                      <p>No content available for this lesson</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {viewingContent === 'quiz' && getCurrentQuiz() && (
+                <div className="space-y-6">
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Quiz Details</h3>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="font-medium text-gray-600">Time Limit:</span>
+                        <span className="ml-2">{getCurrentQuiz()?.timeLimit ? `${getCurrentQuiz()?.timeLimit} minutes` : 'No time limit'}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-600">Passing Score:</span>
+                        <span className="ml-2">{getCurrentQuiz()?.passingScore}%</span>
+                      </div>
+                    </div>
+                    {getCurrentQuiz()?.description && (
+                      <div className="mt-3">
+                        <span className="font-medium text-gray-600">Description:</span>
+                        <p className="mt-1 text-gray-700">{getCurrentQuiz()?.description}</p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="text-center py-8 text-gray-500">
+                    <Clock className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                    <p className="text-lg font-medium mb-2">Quiz Questions</p>
+                    <p className="text-sm">Quiz questions are only visible to students when they take the quiz.</p>
+                    <p className="text-sm mt-2">Teachers can view student scores and manage retakes from the Quiz Scores page.</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
