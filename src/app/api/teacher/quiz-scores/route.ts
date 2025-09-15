@@ -234,4 +234,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
-// MAJOR FIX: Force deployment 4 - Fix retake limits and UI
+// FORCE DEPLOYMENT 5 - Major API fix for quiz retake logic
