@@ -148,6 +148,20 @@ export default function StudentQuiz({ params }: { params: Promise<{ id: string }
     if (submitting) return
     
     setSubmitting(true)
+    
+    // Debug: Log what we're sending
+    console.log('=== CLIENT SIDE DEBUG ===')
+    console.log('Quiz ID:', quizId)
+    console.log('Answers being sent:', JSON.stringify(answers, null, 2))
+    console.log('Quiz questions:', JSON.stringify(quiz?.questions?.map(q => ({
+      id: q.id,
+      type: q.type,
+      question: q.question.substring(0, 50) + '...',
+      options: q.options,
+      correctAnswer: q.correctAnswer
+    })), null, 2))
+    console.log('========================')
+    
     try {
       const response = await fetch(`/api/student/quiz/${quizId}/attempt`, {
         method: 'POST',
