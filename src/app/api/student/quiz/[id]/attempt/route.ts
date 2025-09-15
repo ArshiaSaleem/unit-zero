@@ -131,31 +131,12 @@ export async function POST(
     let correctAnswers = 0
     const totalQuestions = randomizedQuestions.length
 
-    console.log('=== QUIZ SCORING DEBUG ===')
-    console.log('Total questions:', totalQuestions)
-    console.log('Student answers:', JSON.stringify(answers, null, 2))
-    console.log('Randomized questions:', JSON.stringify(randomizedQuestions.map(q => ({
-      id: q.id,
-      type: q.type,
-      question: q.question.substring(0, 50) + '...',
-      options: q.options,
-      correctAnswer: q.correctAnswer
-    })), null, 2))
-
+    // Calculate score using simple, direct comparison
     for (let i = 0; i < randomizedQuestions.length; i++) {
       const question = randomizedQuestions[i]
       const userAnswer = answers[i]
 
-      if (!userAnswer) {
-        console.log(`Question ${i + 1}: No answer provided`)
-        continue
-      }
-
-      console.log(`\n--- Question ${i + 1} ---`)
-      console.log('Question type:', question.type)
-      console.log('User answer:', userAnswer.answer)
-      console.log('Correct answer:', question.correctAnswer)
-      console.log('Question options:', question.options)
+      if (!userAnswer) continue
 
       switch (question.type) {
         case 'multiple-choice':
@@ -164,24 +145,15 @@ export async function POST(
             const selectedIndex = parseInt(userAnswer.answer)
             const selectedOption = question.options[selectedIndex]
             const correctAnswer = question.correctAnswer
-            console.log('Selected index:', selectedIndex)
-            console.log('Selected option:', selectedOption)
-            console.log('Correct answer:', correctAnswer)
             
             if (selectedOption === correctAnswer) {
               correctAnswers++
-              console.log('✅ CORRECT')
-            } else {
-              console.log('❌ WRONG')
             }
           }
           break
         case 'true-false':
           if (userAnswer.answer === question.correctAnswer) {
             correctAnswers++
-            console.log('✅ CORRECT')
-          } else {
-            console.log('❌ WRONG')
           }
           break
         case 'short-answer':
@@ -189,28 +161,16 @@ export async function POST(
               question.correctAnswer && 
               userAnswer.answer.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim()) {
             correctAnswers++
-            console.log('✅ CORRECT')
-          } else {
-            console.log('❌ WRONG')
           }
           break
         case 'essay':
           // For essay questions, we'll give full points if answered
           if (userAnswer.answer && userAnswer.answer.trim().length > 0) {
             correctAnswers++
-            console.log('✅ CORRECT (essay answered)')
-          } else {
-            console.log('❌ WRONG (essay not answered)')
           }
           break
       }
     }
-
-    console.log(`\n=== FINAL SCORE ===`)
-    console.log('Correct answers:', correctAnswers)
-    console.log('Total questions:', totalQuestions)
-    console.log('Score percentage:', Math.round((correctAnswers / totalQuestions) * 100))
-    console.log('========================')
 
     const score = Math.round((correctAnswers / totalQuestions) * 100)
     const passed = score >= quiz.passingScore
