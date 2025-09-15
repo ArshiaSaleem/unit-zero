@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
               latestScore: latestAttempt?.score || 0,
               bestScore: bestScore,
               totalAttempts: attempts.length,
-              isPassed: latestAttempt ? latestAttempt.score >= quiz.passingScore : false,
+              isPassed: bestScore >= quiz.passingScore,
               latestAttemptDate: latestAttempt?.createdAt || null,
               hasAttempted: attempts.length > 0,
               retakePermission: retakePermission ? {

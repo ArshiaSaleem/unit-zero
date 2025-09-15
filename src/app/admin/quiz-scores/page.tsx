@@ -110,16 +110,16 @@ export default function AdminQuizScores() {
   }
 
   const filterScores = () => {
-    let filtered = [...quizScores]
+    let filtered = [...(quizScores || [])]
 
     // Search filter
     if (searchTerm) {
       filtered = filtered.filter(score => 
-        score.user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        score.user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        score.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        score.quizTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        score.courseTitle.toLowerCase().includes(searchTerm.toLowerCase())
+        score?.user?.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        score?.user?.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        score?.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        score?.quizTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        score?.courseTitle?.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
 
@@ -201,20 +201,20 @@ export default function AdminQuizScores() {
     ]
 
     const csvData = filteredScores.map(score => [
-      `${score.user.firstName} ${score.user.lastName}`,
-      score.user.email,
-      score.courseTitle,
-      score.sectionTitle,
-      score.quizTitle,
-      score.latestScore,
-      score.bestScore,
-      score.totalAttempts,
-      score.isPassed ? 'Passed' : (score.hasAttempted ? 'Failed' : 'Not Attempted'),
-      score.passingScore,
-      score.hasAttempted ? 'Yes' : 'No',
-      score.canRetake ? 'Yes' : 'No',
-      score.retakePermission?.retakeCount || 0,
-      score.latestAttemptDate ? new Date(score.latestAttemptDate).toLocaleDateString() : 'N/A'
+      `${score?.user?.firstName || ''} ${score?.user?.lastName || ''}`,
+      score?.user?.email || '',
+      score?.courseTitle || '',
+      score?.sectionTitle || '',
+      score?.quizTitle || '',
+      score?.latestScore || 0,
+      score?.bestScore || 0,
+      score?.totalAttempts || 0,
+      score?.isPassed ? 'Passed' : (score?.hasAttempted ? 'Failed' : 'Not Attempted'),
+      score?.passingScore || 0,
+      score?.hasAttempted ? 'Yes' : 'No',
+      score?.canRetake ? 'Yes' : 'No',
+      score?.retakePermission?.retakeCount || 0,
+      score?.latestAttemptDate ? new Date(score.latestAttemptDate).toLocaleDateString() : 'N/A'
     ])
 
     const csvContent = [headers, ...csvData]
