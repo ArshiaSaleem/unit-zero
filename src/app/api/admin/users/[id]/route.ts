@@ -65,7 +65,9 @@ export async function PATCH(
 
       const defaultPassword = user.role === 'STUDENT' 
         ? process.env.DEFAULT_STUDENT_PASSWORD!
-        : process.env.DEFAULT_TEACHER_PASSWORD!
+        : user.role === 'TEACHER'
+        ? process.env.DEFAULT_TEACHER_PASSWORD!
+        : process.env.DEFAULT_ADMIN_PASSWORD!
 
       const hashedPassword = await hashPassword(defaultPassword)
 
