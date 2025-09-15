@@ -126,20 +126,28 @@ export async function POST(
     // Convert randomized questions back to original format for scoring
     const originalQuestions = convertRandomizedToOriginal(randomizedQuestions)
 
-    // Calculate score using original questions and mapped answers
+    // Calculate score using randomized questions and student answers directly
+    // This ensures we're scoring against the same questions the student saw
     let correctAnswers = 0
-    const totalQuestions = originalQuestions.length
+    const totalQuestions = randomizedQuestions.length
 
-    for (let i = 0; i < originalQuestions.length; i++) {
-      const question = originalQuestions[i]
-      const userAnswer = originalAnswers[i]
+    for (let i = 0; i < randomizedQuestions.length; i++) {
+      const question = randomizedQuestions[i]
+      const userAnswer = answers[i]
 
       if (!userAnswer) continue
 
       switch (question.type) {
         case 'multiple-choice':
-          if (userAnswer.answer === question.correctAnswer) {
-            correctAnswers++
+          // For multiple choice, compare the selected option text with the original correct answer
+          if (question.shuffledOptions && userAnswer.answer) {
+            const selectedIndex = parseInt(userAnswer.answer)
+            if (!isNaN(selectedIndex) && selectedIndex >= 0 && selectedIndex < question.shuffledOptions.length) {
+              const selectedOption = question.shuffledOptions[selectedIndex]
+              if (selectedOption === question.originalCorrectAnswer) {
+                correctAnswers++
+              }
+            }
           }
           break
         case 'true-false':

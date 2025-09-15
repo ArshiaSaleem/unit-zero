@@ -61,8 +61,8 @@ export function shuffleQuestionOptions(question: QuizQuestion): RandomizedQuesti
     shuffledOptions,
     originalCorrectAnswer: question.correctAnswer,
     correctAnswerIndex: newCorrectAnswerIndex,
-    // Update the correctAnswer to be the new index for scoring
-    correctAnswer: newCorrectAnswerIndex.toString()
+    // Keep the original correct answer text for scoring
+    correctAnswer: question.correctAnswer
   }
 }
 
