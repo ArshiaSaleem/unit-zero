@@ -159,16 +159,16 @@ export async function POST(
 
       switch (question.type) {
         case 'multiple-choice':
-          // For multiple choice, compare the selected option index with correct answer index
+          // For multiple choice, compare the selected option text with correct answer text
           if (question.options && userAnswer.answer) {
             const selectedIndex = parseInt(userAnswer.answer)
-            const correctIndex = question.options.findIndex(option => option === question.correctAnswer)
+            const selectedOption = question.options[selectedIndex]
+            const correctAnswer = question.correctAnswer
             console.log('Selected index:', selectedIndex)
-            console.log('Correct index:', correctIndex)
-            console.log('Selected option:', question.options[selectedIndex])
-            console.log('Correct option:', question.options[correctIndex])
+            console.log('Selected option:', selectedOption)
+            console.log('Correct answer:', correctAnswer)
             
-            if (selectedIndex === correctIndex) {
+            if (selectedOption === correctAnswer) {
               correctAnswers++
               console.log('✅ CORRECT')
             } else {
