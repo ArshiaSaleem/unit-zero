@@ -12,7 +12,7 @@ export default function HomePage() {
     if (!loading) {
       if (!user) {
         router.push('/login')
-      } else if (user.mustChangePassword) {
+      } else if (user.mustChangePassword && user.role !== 'ADMIN') {
         router.push('/change-password')
       } else {
         router.push(`/${user.role.toLowerCase()}`)
