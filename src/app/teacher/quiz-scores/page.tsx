@@ -399,7 +399,7 @@ export default function QuizScoresPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="space-y-1">
                         {score.allAttempts
-                          .filter(attempt => attempt.score > 0 || attempt.completed) // Only show actual attempts
+                          .filter(attempt => attempt.score > 0) // Only show attempts with actual scores
                           .map((attempt, index) => (
                             <div key={attempt.id} className="text-sm">
                               <span className="text-gray-600">Attempt {index + 1}:</span>
@@ -462,16 +462,16 @@ export default function QuizScoresPage() {
                                   'Grant Retake'
                                 )}
                               </button>
-                            ) : score.retakePermission.isActive && score.canRetake ? (
+                            ) : score.canRetake ? (
                               <button
-                                onClick={() => handleRetakeAction('revoke_retake', score.user.id, score.quizId)}
+                                onClick={() => handleRetakeAction('grant_retake', score.user.id, score.quizId)}
                                 disabled={updating === `${score.user.id}-${score.quizId}`}
-                                className="btn-outline text-xs py-1 px-3 text-red-600 border-red-600 hover:bg-red-50 disabled:opacity-50"
+                                className="btn-primary text-xs py-1 px-3 disabled:opacity-50"
                               >
                                 {updating === `${score.user.id}-${score.quizId}` ? (
-                                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-red-600"></div>
+                                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
                                 ) : (
-                                  'Revoke Retake'
+                                  'Grant Retake'
                                 )}
                               </button>
                             ) : (
