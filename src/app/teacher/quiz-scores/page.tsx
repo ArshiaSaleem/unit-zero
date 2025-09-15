@@ -181,8 +181,11 @@ export default function QuizScoresPage() {
       'Best Score': score.bestScore,
       'Total Attempts': score.totalAttempts,
       'All Attempts': score.allAttempts
-        .filter(attempt => attempt.score > 0 || attempt.completed)
-        .map((attempt, index) => `Attempt ${index + 1}: ${attempt.score}%`).join(', '),
+        .filter(attempt => attempt.score > 0)
+        .map((attempt, index) => {
+          const isRetake = index > 0
+          return `Attempt ${index + 1}: ${attempt.score}%${isRetake ? ' (R)' : ''}`
+        }).join(', '),
       'Status': score.isPassed ? 'Passed' : 'Failed',
       'Can Retake': score.canRetake ? 'Yes' : 'No',
       'Retake Count': score.retakePermission?.retakeCount || 0,
@@ -400,19 +403,23 @@ export default function QuizScoresPage() {
                       <div className="space-y-1">
                         {score.allAttempts
                           .filter(attempt => attempt.score > 0) // Only show attempts with actual scores
-                          .map((attempt, index) => (
-                            <div key={attempt.id} className="text-sm">
-                              <span className="text-gray-600">Attempt {index + 1}:</span>
-                              <span className={`ml-2 font-medium ${
-                                attempt.score >= score.passingScore
-                                  ? 'text-green-600'
-                                  : 'text-red-600'
-                              }`}>
-                                {attempt.score}%
-                              </span>
-                              {attempt.isRetake && <span className="ml-1 text-xs text-gray-500">(R)</span>}
-                            </div>
-                          ))}
+                          .map((attempt, index) => {
+                            // First attempt is always "Attempt 1" (no R), subsequent are retakes
+                            const isRetake = index > 0
+                            return (
+                              <div key={attempt.id} className="text-sm">
+                                <span className="text-gray-600">Attempt {index + 1}:</span>
+                                <span className={`ml-2 font-medium ${
+                                  attempt.score >= score.passingScore
+                                    ? 'text-green-600'
+                                    : 'text-red-600'
+                                }`}>
+                                  {attempt.score}%
+                                </span>
+                                {isRetake && <span className="ml-1 text-xs text-gray-500">(R)</span>}
+                              </div>
+                            )
+                          })}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -433,52 +440,44 @@ export default function QuizScoresPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {score.retakePermission ? (
-                        <div>
-                          <div className="text-sm text-gray-900">
-                            {score.retakePermission.retakeCount}/{score.retakePermission.maxRetakes} retakes used
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {score.canRetake ? 'Can retake' : 'No retakes left'}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="text-sm text-gray-500">No permission</div>
-                      )}
+                      <div className="text-sm text-gray-900">
+                        {score.allAttempts.filter(attempt => attempt.score > 0).length} attempts
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {score.canRetake ? 'Can retake' : 'No retakes left'}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center gap-2">
                         {!score.isPassed && (
                           <>
-                            {!score.retakePermission ? (
-                              <button
-                                onClick={() => handleRetakeAction('grant_retake', score.user.id, score.quizId)}
-                                disabled={updating === `${score.user.id}-${score.quizId}`}
-                                className="btn-primary text-xs py-1 px-3 disabled:opacity-50"
-                              >
-                                {updating === `${score.user.id}-${score.quizId}` ? (
-                                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                                ) : (
-                                  'Grant Retake'
-                                )}
-                              </button>
-                            ) : score.canRetake ? (
-                              <button
-                                onClick={() => handleRetakeAction('grant_retake', score.user.id, score.quizId)}
-                                disabled={updating === `${score.user.id}-${score.quizId}`}
-                                className="btn-primary text-xs py-1 px-3 disabled:opacity-50"
-                              >
-                                {updating === `${score.user.id}-${score.quizId}` ? (
-                                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                                ) : (
-                                  'Grant Retake'
-                                )}
-                              </button>
-                            ) : (
-                              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                                Max Retakes Used
-                              </span>
-                            )}
+                            {(() => {
+                              const totalAttempts = score.allAttempts.filter(attempt => attempt.score > 0).length
+                              const retakesUsed = Math.max(0, totalAttempts - 1) // Subtract 1 for original attempt
+                              const canGrantRetake = retakesUsed < 2 // Only allow 2 retakes maximum
+                              
+                              if (canGrantRetake) {
+                                return (
+                                  <button
+                                    onClick={() => handleRetakeAction('grant_retake', score.user.id, score.quizId)}
+                                    disabled={updating === `${score.user.id}-${score.quizId}`}
+                                    className="btn-primary text-xs py-1 px-3 disabled:opacity-50"
+                                  >
+                                    {updating === `${score.user.id}-${score.quizId}` ? (
+                                      <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                                    ) : (
+                                      'Grant Retake'
+                                    )}
+                                  </button>
+                                )
+                              } else {
+                                return (
+                                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                                    Max Retakes Used
+                                  </span>
+                                )
+                              }
+                            })()}
                           </>
                         )}
                         {score.isPassed && (
