@@ -81,7 +81,9 @@ export async function POST(request: NextRequest) {
     // Set default password based on role
     const defaultPassword = role === 'STUDENT' 
       ? process.env.DEFAULT_STUDENT_PASSWORD!
-      : process.env.DEFAULT_TEACHER_PASSWORD!
+      : role === 'TEACHER'
+      ? process.env.DEFAULT_TEACHER_PASSWORD!
+      : 'admin123' // Admin password
 
     const hashedPassword = await hashPassword(defaultPassword)
 
@@ -92,7 +94,7 @@ export async function POST(request: NextRequest) {
         role,
         firstName,
         lastName,
-        mustChangePassword: true
+        mustChangePassword: role !== 'ADMIN' // Only non-admins need to change password
       }
     })
 

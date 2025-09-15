@@ -14,7 +14,8 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (user && !authLoading) {
-      if (user.mustChangePassword) {
+      // Admins should never be prompted to change password
+      if (user.mustChangePassword && user.role !== 'ADMIN') {
         router.push('/change-password')
       } else {
         router.push(`/${user.role.toLowerCase()}`)

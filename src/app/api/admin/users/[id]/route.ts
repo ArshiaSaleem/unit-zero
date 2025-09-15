@@ -75,7 +75,7 @@ export async function PATCH(
         where: { id },
         data: {
           password: hashedPassword,
-          mustChangePassword: true
+          mustChangePassword: user.role !== 'ADMIN' // Only non-admins need to change password
         }
       })
 
