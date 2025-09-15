@@ -174,6 +174,9 @@ export async function POST(
 
     const score = Math.round((correctAnswers / totalQuestions) * 100)
     const passed = score >= quiz.passingScore
+    
+    // Debug: Log the final score calculation
+    console.log(`SCORING DEBUG: ${correctAnswers}/${totalQuestions} = ${score}% (${new Date().toISOString()})`)
 
     // Determine if this is a retake
     const isRetake = existingAttempts.length > 0
