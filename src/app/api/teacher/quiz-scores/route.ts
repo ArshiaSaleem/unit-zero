@@ -97,8 +97,8 @@ export async function GET(request: NextRequest) {
         // Calculate actual retake count: if student has 3 attempts, they've used 2 retakes (1 original + 2 retakes)
         const actualRetakeCount = Math.max(0, attempts.length - 1)
         
-        // Use teacher's max retakes (3) instead of quiz's maxRetakes
-        const teacherMaxRetakes = 3
+        // Use 1 retake maximum for all users
+        const teacherMaxRetakes = 1
 
         quizScores.push({
           id: `${quiz.id}-${userId}`,
@@ -109,7 +109,7 @@ export async function GET(request: NextRequest) {
           quizId: quiz.id,
           quizTitle: quiz.title,
           passingScore: quiz.passingScore,
-          maxRetakes: teacherMaxRetakes, // Always 3 for teachers
+          maxRetakes: teacherMaxRetakes, // Always 1 for all users
           user: userData.user,
           latestScore: latestAttempt.score,
           bestScore: bestScore,
@@ -126,7 +126,7 @@ export async function GET(request: NextRequest) {
           retakePermission: retakePermission ? {
             id: retakePermission.id,
             retakeCount: actualRetakeCount, // Use calculated retake count from attempts
-            maxRetakes: teacherMaxRetakes, // Always 3 for teachers
+            maxRetakes: teacherMaxRetakes, // Always 1 for all users
             isActive: retakePermission.isActive,
             allowedBy: retakePermission.allowedBy,
             createdAt: retakePermission.createdAt
@@ -170,7 +170,7 @@ export async function POST(request: NextRequest) {
         },
         update: {
           isActive: true,
-          maxRetakes: Math.min(maxRetakes || 3, 3), // Cap at 3 for teachers
+          maxRetakes: 1, // Fixed at 1 for all users
           allowedBy: user.id,
           retakeCount: 0
         },
@@ -178,7 +178,7 @@ export async function POST(request: NextRequest) {
           userId,
           quizId,
           allowedBy: user.id,
-          maxRetakes: Math.min(maxRetakes || 3, 3), // Cap at 3 for teachers
+          maxRetakes: 1, // Fixed at 1 for all users
           isActive: true
         }
       })
@@ -218,7 +218,7 @@ export async function POST(request: NextRequest) {
           allowedBy: user.id
         },
         data: {
-          maxRetakes: Math.min(maxRetakes, 3) // Cap at 3 for teachers
+          maxRetakes: 1 // Fixed at 1 for all users
         }
       })
 
