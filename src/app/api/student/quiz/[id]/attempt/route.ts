@@ -147,24 +147,20 @@ export async function POST(
     // Calculate score using simple, direct comparison
     // Since we're not shuffling options anymore, we can directly compare answers
     let correctAnswers = 0
-    const totalQuestions = randomizedQuestions.length
+    const totalQuestions = originalQuestions.length
 
-    // Calculate score using simple, direct comparison
-    for (let i = 0; i < randomizedQuestions.length; i++) {
-      const question = randomizedQuestions[i]
-      const userAnswer = answers[i]
+    // Calculate score using the original questions for accurate comparison
+    for (let i = 0; i < originalQuestions.length; i++) {
+      const question = originalQuestions[i]
+      const userAnswer = originalAnswers[i]
 
       if (!userAnswer) continue
 
       switch (question.type) {
         case 'multiple-choice':
           // For multiple choice, compare the selected option text with correct answer text
-          if (question.options && userAnswer.answer) {
-            const selectedIndex = parseInt(userAnswer.answer)
-            const selectedOption = question.options[selectedIndex]
-            const correctAnswer = question.correctAnswer
-            
-            if (selectedOption === correctAnswer) {
+          if (userAnswer.answer && question.correctAnswer) {
+            if (userAnswer.answer === question.correctAnswer) {
               correctAnswers++
             }
           }
@@ -195,6 +191,12 @@ export async function POST(
     
     // Debug: Log the final score calculation
     console.log(`SCORING DEBUG: ${correctAnswers}/${totalQuestions} = ${score}% (${new Date().toISOString()})`)
+    console.log('SCORING DEBUG - Original answers:', originalAnswers)
+    console.log('SCORING DEBUG - Original questions:', originalQuestions.map(q => ({ 
+      type: q.type, 
+      correctAnswer: q.correctAnswer, 
+      options: q.options 
+    })))
 
     // isRetake was already determined earlier
 

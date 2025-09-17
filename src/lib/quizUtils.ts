@@ -113,11 +113,13 @@ export function mapStudentAnswers(
     const question = randomizedQuestions[index]
     
     // For multiple choice questions, convert the selected index back to the actual option text
-    if (question.type === 'multiple-choice' && question.shuffledOptions && answer.answer) {
+    if (question.type === 'multiple-choice' && answer.answer) {
       const selectedIndex = parseInt(answer.answer)
-      if (!isNaN(selectedIndex) && selectedIndex >= 0 && selectedIndex < question.shuffledOptions.length) {
+      const options = question.shuffledOptions || question.options || []
+      
+      if (!isNaN(selectedIndex) && selectedIndex >= 0 && selectedIndex < options.length) {
         return {
-          answer: question.shuffledOptions[selectedIndex]
+          answer: options[selectedIndex]
         }
       }
     }
