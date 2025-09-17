@@ -98,6 +98,21 @@ export async function POST(
       )
     }
 
+    // If this is a retake, increment the retake count BEFORE processing the quiz
+    if (isRetake && retakePermission) {
+      await prisma.quizRetakePermission.update({
+        where: {
+          userId_quizId: {
+            userId: user.id,
+            quizId: quizId
+          }
+        },
+        data: {
+          retakeCount: retakePermission.retakeCount + 1
+        }
+      })
+    }
+
     // Parse quiz questions
     let allQuestions
     try {
@@ -193,20 +208,7 @@ export async function POST(
       }
     })
 
-    // If this is a retake, update the retake count
-    if (isRetake && retakePermission) {
-      await prisma.quizRetakePermission.update({
-        where: {
-          userId_quizId: {
-            userId: user.id,
-            quizId: quizId
-          }
-        },
-        data: {
-          retakeCount: retakePermission.retakeCount + 1
-        }
-      })
-    }
+    // Retake count was already incremented before processing the quiz
 
     return NextResponse.json({
       message: 'Quiz submitted successfully',
