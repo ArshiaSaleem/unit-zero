@@ -207,8 +207,8 @@ export async function POST(
     
     // Debug: Log the final score calculation
     console.log(`SCORING DEBUG: ${correctAnswers}/${totalQuestions} = ${score}% (${new Date().toISOString()})`)
-    console.log('SCORING DEBUG - Original answers:', originalAnswers)
-    console.log('SCORING DEBUG - Original questions:', originalQuestions.map(q => ({ 
+    console.log('SCORING DEBUG - Student answers:', answersToScore)
+    console.log('SCORING DEBUG - Questions for scoring:', questionsToScore.map(q => ({ 
       type: q.type, 
       correctAnswer: q.correctAnswer, 
       options: q.options 
