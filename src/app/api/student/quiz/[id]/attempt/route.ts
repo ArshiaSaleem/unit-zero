@@ -335,7 +335,20 @@ export async function GET(
     // Generate randomized quiz (10 questions from available questions)
     const randomizedQuestions = generateRandomizedQuiz(allQuestions, 10)
 
-    return NextResponse.json({
+    // Debug logging
+    console.log('🔍 Quiz API Debug:', {
+      userId: user.id,
+      quizId: quizId,
+      retakePermission: retakePermission ? {
+        retakeCount: retakePermission.retakeCount,
+        maxRetakes: retakePermission.maxRetakes,
+        isActive: retakePermission.isActive
+      } : null,
+      canRetake,
+      attemptsCount: attempts.length
+    })
+
+    const response = NextResponse.json({
       quiz: {
         id: quiz.id,
         title: quiz.title,
@@ -354,6 +367,13 @@ export async function GET(
         isActive: retakePermission.isActive
       } : null
     })
+    
+    // Add cache-busting headers
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    
+    return response
   } catch (error) {
     console.error('Error fetching quiz for student:', error)
     return NextResponse.json(
