@@ -133,6 +133,7 @@ export function mapStudentAnswers(
       }
     }
     
+    // For other question types, return the answer as-is
     return answer
   })
 }

@@ -141,13 +141,10 @@ export async function POST(
     // Convert student answers from randomized format back to original format
     const originalAnswers = mapStudentAnswers(randomizedQuestions, answers)
 
-    // Convert randomized questions back to original format for scoring
-    const originalQuestions = convertRandomizedToOriginal(randomizedQuestions)
-
-    // CRITICAL FIX: Handle case where quiz has duplicates in database
-    // Only score against the first 10 questions to match what student actually answered
-    const questionsToScore = originalQuestions.slice(0, 10)
-    const answersToScore = originalAnswers.slice(0, 10)
+    // CRITICAL FIX: Use the same randomized questions the student saw for scoring
+    // This ensures answers are matched to the correct questions
+    const questionsToScore = randomizedQuestions.slice(0, 10)
+    const answersToScore = answers.slice(0, 10)
 
     // Calculate score using simple, direct comparison
     // Since we're not shuffling options anymore, we can directly compare answers
@@ -165,8 +162,22 @@ export async function POST(
         case 'multiple-choice':
           // For multiple choice, compare the selected option text with correct answer text
           if (userAnswer.answer && question.correctAnswer) {
-            if (userAnswer.answer === question.correctAnswer) {
-              correctAnswers++
+            // Check if answer is an index (number) or text
+            const selectedIndex = parseInt(userAnswer.answer)
+            if (!isNaN(selectedIndex)) {
+              // Answer is an index, convert to text
+              const options = question.shuffledOptions || question.options || []
+              if (selectedIndex >= 0 && selectedIndex < options.length) {
+                const selectedOption = options[selectedIndex]
+                if (selectedOption === question.correctAnswer) {
+                  correctAnswers++
+                }
+              }
+            } else {
+              // Answer is already text, compare directly
+              if (userAnswer.answer === question.correctAnswer) {
+                correctAnswers++
+              }
             }
           }
           break
