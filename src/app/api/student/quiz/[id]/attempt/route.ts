@@ -98,6 +98,9 @@ export async function POST(
       )
     }
 
+    // Determine if this is a retake (moved up to use before permission check)
+    const isRetake = existingAttempts.length > 0
+
     // If this is a retake, increment the retake count BEFORE processing the quiz
     if (isRetake && retakePermission) {
       await prisma.quizRetakePermission.update({
@@ -193,8 +196,7 @@ export async function POST(
     // Debug: Log the final score calculation
     console.log(`SCORING DEBUG: ${correctAnswers}/${totalQuestions} = ${score}% (${new Date().toISOString()})`)
 
-    // Determine if this is a retake
-    const isRetake = existingAttempts.length > 0
+    // isRetake was already determined earlier
 
     // Save quiz attempt with original answers for record keeping
     const attempt = await prisma.quizAttempt.create({
