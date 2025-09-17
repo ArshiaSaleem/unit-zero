@@ -345,8 +345,26 @@ export async function GET(
         isActive: retakePermission.isActive
       } : null,
       canRetake,
-      attemptsCount: attempts.length
+      attemptsCount: attempts.length,
+      timestamp: new Date().toISOString()
     })
+    
+    // Force refresh retake permission from database to bypass any caching
+    const freshRetakePermission = await prisma.quizRetakePermission.findUnique({
+      where: {
+        userId_quizId: {
+          userId: user.id,
+          quizId: quizId
+        }
+      }
+    })
+    
+    console.log('🔄 Fresh retake permission from DB:', freshRetakePermission)
+    
+    // Use the fresh data
+    const finalRetakePermission = freshRetakePermission || retakePermission
+    const finalCanRetake = finalRetakePermission?.isActive && 
+      finalRetakePermission.retakeCount < finalRetakePermission.maxRetakes
 
     const response = NextResponse.json({
       quiz: {
@@ -360,11 +378,11 @@ export async function GET(
       attempts: attempts,
       courseId: quiz.section.course.id,
       alreadyAttempted: attempts.length > 0,
-      canRetake: canRetake,
-      retakePermission: retakePermission ? {
-        retakeCount: retakePermission.retakeCount,
-        maxRetakes: retakePermission.maxRetakes,
-        isActive: retakePermission.isActive
+      canRetake: finalCanRetake,
+      retakePermission: finalRetakePermission ? {
+        retakeCount: finalRetakePermission.retakeCount,
+        maxRetakes: finalRetakePermission.maxRetakes,
+        isActive: finalRetakePermission.isActive
       } : null
     })
     
