@@ -247,7 +247,7 @@ export default function StudentQuiz({ params }: { params: Promise<{ id: string }
                   <AlertCircle className="h-5 w-5 text-blue-600 mr-2" />
                   <p className="text-blue-800 text-sm">
                     {canRetake 
-                      ? `You can retake this quiz. Retakes used: ${retakePermission?.retakeCount || 0}/${retakePermission?.maxRetakes || 0}`
+                      ? `You can retake this quiz. Retakes used: ${retakePermission?.retakeCount || 0}/${retakePermission?.maxRetakes || 1}`
                       : 'You have already taken this quiz. Retake permission is required.'
                     }
                   </p>
@@ -334,7 +334,7 @@ export default function StudentQuiz({ params }: { params: Promise<{ id: string }
                   <div className="flex items-center">
                     <AlertCircle className="h-5 w-5 text-blue-600 mr-2" />
                     <p className="text-blue-800 text-sm">
-                      You have already taken this quiz. Only one attempt is allowed per quiz.
+                      You have already taken this quiz. Only one retake is allowed per quiz.
                     </p>
                   </div>
                 </div>

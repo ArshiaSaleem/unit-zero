@@ -90,8 +90,8 @@ export async function POST(
       )
     }
 
-    // If student has retake permission but exceeded max retakes (admin can grant unlimited retakes with maxRetakes = 999)
-    if (retakePermission && retakePermission.maxRetakes < 999 && retakePermission.retakeCount >= retakePermission.maxRetakes) {
+    // If student has retake permission but exceeded max retakes
+    if (retakePermission && retakePermission.retakeCount >= retakePermission.maxRetakes) {
       return NextResponse.json(
         { error: 'You have exceeded the maximum number of retakes allowed.' },
         { status: 403 }
@@ -299,9 +299,9 @@ export async function GET(
       }
     })
 
-    // Check if student can retake (admin can grant unlimited retakes with maxRetakes = 999)
+    // Check if student can retake
     const canRetake = retakePermission?.isActive && 
-      (!retakePermission || retakePermission.maxRetakes >= 999 || retakePermission.retakeCount < retakePermission.maxRetakes)
+      retakePermission.retakeCount < retakePermission.maxRetakes
 
     // If student has attempted and no retake permission, return results only
     if (attempts.length > 0 && !canRetake) {

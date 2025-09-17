@@ -45,8 +45,8 @@ export async function POST(request: NextRequest) {
         },
         update: {
           isActive: true,
-          retakeCount: 0, // Reset retake count when admin grants permission
-          maxRetakes: 999, // Admin can allow unlimited retakes
+          // Don't reset retake count - keep existing count to prevent unlimited retakes
+          maxRetakes: 1, // Admin can allow only 1 retake
           allowedBy: user.id,
           updatedAt: new Date()
         },
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
           quizId,
           isActive: true,
           retakeCount: 0,
-          maxRetakes: 999, // Admin can allow unlimited retakes
+          maxRetakes: 1, // Admin can allow only 1 retake
           allowedBy: user.id
         }
       })
