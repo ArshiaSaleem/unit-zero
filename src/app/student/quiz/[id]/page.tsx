@@ -108,6 +108,14 @@ export default function StudentQuiz({ params }: { params: Promise<{ id: string }
         setCanRetake(data.canRetake || false)
         setRetakePermission(data.retakePermission || null)
         
+        // Debug logging
+        console.log('🔍 Frontend Debug - Quiz Data:', {
+          canRetake: data.canRetake,
+          retakePermission: data.retakePermission,
+          alreadyAttempted: data.alreadyAttempted,
+          attempts: data.attempts?.length || 0
+        })
+        
         // If already attempted and can't retake, show results immediately
         if (data.alreadyAttempted && !data.canRetake) {
           setShowResults(true)
