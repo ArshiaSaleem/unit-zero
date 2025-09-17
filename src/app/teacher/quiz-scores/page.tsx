@@ -181,7 +181,6 @@ export default function QuizScoresPage() {
       'Best Score': score.bestScore,
       'Total Attempts': score.totalAttempts,
       'All Attempts': score.allAttempts
-        .filter(attempt => attempt.score > 0)
         .map((attempt, index) => {
           const isRetake = index > 0
           return `Attempt ${index + 1}: ${attempt.score}%${isRetake ? ' (R)' : ''}`
@@ -399,7 +398,6 @@ export default function QuizScoresPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="space-y-1">
                         {score.allAttempts
-                          .filter(attempt => attempt.score > 0) // Only show attempts with actual scores
                           .map((attempt, index) => {
                             // First attempt is always "Attempt 1" (no R), subsequent are retakes
                             const isRetake = index > 0
@@ -441,7 +439,7 @@ export default function QuizScoresPage() {
                         {!score.isPassed && (
                           <>
                             {(() => {
-                              const totalAttempts = score.allAttempts.filter(attempt => attempt.score > 0).length
+                              const totalAttempts = score.allAttempts.length
                               const retakesUsed = Math.max(0, totalAttempts - 1) // Subtract 1 for original attempt
                               const canGrantRetake = retakesUsed < 2 // Only allow 2 retakes maximum
                               
