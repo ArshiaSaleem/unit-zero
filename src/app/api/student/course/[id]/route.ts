@@ -68,7 +68,7 @@ export async function GET(
                   where: {
                     userId: user.id
                   },
-                  orderBy: { createdAt: 'desc' }
+                  orderBy: { createdAt: 'asc' }
                 }
               },
               orderBy: { createdAt: 'asc' }
