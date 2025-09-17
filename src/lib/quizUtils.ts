@@ -28,14 +28,23 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 /**
- * Randomly selects 10 questions from the available questions
+ * Randomly selects questions from the available questions, ensuring no duplicates
  */
 export function selectRandomQuestions(questions: QuizQuestion[], count: number = 10): QuizQuestion[] {
   if (questions.length <= count) {
     return questions
   }
   
-  const shuffled = shuffleArray(questions)
+  // Remove duplicates first by question text
+  const uniqueQuestions = questions.filter((question, index, self) => 
+    index === self.findIndex(q => q.question === question.question)
+  )
+  
+  if (uniqueQuestions.length <= count) {
+    return uniqueQuestions
+  }
+  
+  const shuffled = shuffleArray(uniqueQuestions)
   return shuffled.slice(0, count)
 }
 
@@ -68,17 +77,17 @@ export function shuffleQuestionOptions(question: QuizQuestion): RandomizedQuesti
 
 /**
  * Generates a randomized quiz for a student
- * - Selects 10 random questions from available questions
+ * - Selects random questions from available questions (no duplicates)
  * - Does NOT shuffle options to ensure accurate scoring
  */
 export function generateRandomizedQuiz(questions: QuizQuestion[], questionCount: number = 10): RandomizedQuestion[] {
-  // Select random questions
+  // Select random questions (this now removes duplicates)
   const selectedQuestions = selectRandomQuestions(questions, questionCount)
   
-  // Return questions without shuffling options to ensure accurate scoring
+  // Return questions with original options (no shuffling) to ensure accurate scoring
   return selectedQuestions.map(question => ({
     ...question,
-    shuffledOptions: question.options || [],
+    shuffledOptions: question.options || [], // Keep original order
     originalCorrectAnswer: question.correctAnswer,
     correctAnswer: question.correctAnswer
   }))

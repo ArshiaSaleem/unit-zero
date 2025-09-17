@@ -144,15 +144,20 @@ export async function POST(
     // Convert randomized questions back to original format for scoring
     const originalQuestions = convertRandomizedToOriginal(randomizedQuestions)
 
+    // CRITICAL FIX: Handle case where quiz has duplicates in database
+    // Only score against the first 10 questions to match what student actually answered
+    const questionsToScore = originalQuestions.slice(0, 10)
+    const answersToScore = originalAnswers.slice(0, 10)
+
     // Calculate score using simple, direct comparison
     // Since we're not shuffling options anymore, we can directly compare answers
     let correctAnswers = 0
-    const totalQuestions = originalQuestions.length
+    const totalQuestions = questionsToScore.length
 
-    // Calculate score using the original questions for accurate comparison
-    for (let i = 0; i < originalQuestions.length; i++) {
-      const question = originalQuestions[i]
-      const userAnswer = originalAnswers[i]
+    // Calculate score using the questions that were actually answered
+    for (let i = 0; i < questionsToScore.length; i++) {
+      const question = questionsToScore[i]
+      const userAnswer = answersToScore[i]
 
       if (!userAnswer) continue
 
