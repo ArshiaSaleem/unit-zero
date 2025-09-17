@@ -112,7 +112,7 @@ model Quiz {
   settings    String?     // JSON string of quiz settings
   timeLimit   Int?        // Time limit in minutes
   passingScore Int        @default(70) // Passing percentage
-  maxRetakes  Int         @default(3) // Maximum retakes allowed by teacher
+  maxRetakes  Int         @default(1) // Maximum retakes allowed by teacher
   isPublished Boolean     @default(false)
   isLocked    Boolean     @default(false)
   sectionId   String
