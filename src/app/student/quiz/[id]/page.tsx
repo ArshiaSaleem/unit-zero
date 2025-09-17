@@ -94,9 +94,12 @@ export default function StudentQuiz({ params }: { params: Promise<{ id: string }
     if (!quizId) return
     
     try {
-      const response = await fetch(`/api/student/quiz/${quizId}/attempt`, {
+      // Add cache-busting parameter
+      const cacheBuster = new Date().getTime()
+      const response = await fetch(`/api/student/quiz/${quizId}/attempt?t=${cacheBuster}`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Cache-Control': 'no-cache'
         }
       })
       if (response.ok) {
