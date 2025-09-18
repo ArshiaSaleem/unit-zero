@@ -136,7 +136,9 @@ export async function POST(
 
     // Generate the same randomized quiz that the student saw
     // This ensures we're scoring against the same questions the student answered
-    const randomizedQuestions = generateRandomizedQuiz(allQuestions, 10)
+    // Use deterministic seed to ensure same questions for same user and quiz
+    const seed = `${user.id}-${quizId}`
+    const randomizedQuestions = generateRandomizedQuiz(allQuestions, 10, seed)
 
     // Convert student answers from randomized format back to original format
     const originalAnswers = mapStudentAnswers(randomizedQuestions, answers)
@@ -355,7 +357,9 @@ export async function GET(
     }
 
     // Generate randomized quiz (10 questions from available questions)
-    const randomizedQuestions = generateRandomizedQuiz(allQuestions, 10)
+    // Use deterministic seed to ensure same questions for same user and quiz
+    const seed = `${user.id}-${quizId}`
+    const randomizedQuestions = generateRandomizedQuiz(allQuestions, 10, seed)
 
     // Debug logging
     console.log('🔍 Quiz API Debug:', {

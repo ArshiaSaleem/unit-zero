@@ -28,9 +28,10 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 /**
- * Randomly selects questions from the available questions, ensuring no duplicates
+ * Deterministically selects questions from the available questions based on seed
+ * This ensures the same questions are selected for the same user and quiz
  */
-export function selectRandomQuestions(questions: QuizQuestion[], count: number = 10): QuizQuestion[] {
+export function selectRandomQuestions(questions: QuizQuestion[], count: number = 10, seed?: string): QuizQuestion[] {
   if (questions.length <= count) {
     return questions
   }
@@ -44,8 +45,30 @@ export function selectRandomQuestions(questions: QuizQuestion[], count: number =
     return uniqueQuestions
   }
   
-  const shuffled = shuffleArray(uniqueQuestions)
+  // Use deterministic shuffling if seed is provided
+  const shuffled = seed ? deterministicShuffle(uniqueQuestions, seed) : shuffleArray(uniqueQuestions)
   return shuffled.slice(0, count)
+}
+
+/**
+ * Deterministic shuffle using a simple seed-based algorithm
+ */
+function deterministicShuffle(array: any[], seed: string): any[] {
+  const result = [...array]
+  let hash = 0
+  for (let i = 0; i < seed.length; i++) {
+    const char = seed.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash // Convert to 32-bit integer
+  }
+  
+  for (let i = result.length - 1; i > 0; i--) {
+    hash = (hash * 1664525 + 1013904223) % 2147483647
+    const j = Math.abs(hash) % (i + 1)
+    ;[result[i], result[j]] = [result[j], result[i]]
+  }
+  
+  return result
 }
 
 /**
@@ -79,10 +102,11 @@ export function shuffleQuestionOptions(question: QuizQuestion): RandomizedQuesti
  * Generates a randomized quiz for a student
  * - Selects random questions from available questions (no duplicates)
  * - Does NOT shuffle options to ensure accurate scoring
+ * - Uses deterministic randomization if seed is provided
  */
-export function generateRandomizedQuiz(questions: QuizQuestion[], questionCount: number = 10): RandomizedQuestion[] {
+export function generateRandomizedQuiz(questions: QuizQuestion[], questionCount: number = 10, seed?: string): RandomizedQuestion[] {
   // Select random questions (this now removes duplicates)
-  const selectedQuestions = selectRandomQuestions(questions, questionCount)
+  const selectedQuestions = selectRandomQuestions(questions, questionCount, seed)
   
   // Return questions with original options (no shuffling) to ensure accurate scoring
   return selectedQuestions.map(question => ({
