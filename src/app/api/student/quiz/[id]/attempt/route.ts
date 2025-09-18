@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { verifyToken } from '@/lib/auth'
-import { generateRandomizedQuiz, convertRandomizedToOriginal, mapStudentAnswers } from '@/lib/quizUtils'
+import { generateRandomizedQuiz, mapStudentAnswers } from '@/lib/quizUtils'
 
 export async function POST(
   request: NextRequest,

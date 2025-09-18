@@ -53,7 +53,7 @@ export function selectRandomQuestions(questions: QuizQuestion[], count: number =
 /**
  * Deterministic shuffle using a simple seed-based algorithm
  */
-function deterministicShuffle(array: any[], seed: string): any[] {
+function deterministicShuffle<T>(array: T[], seed: string): T[] {
   const result = [...array]
   let hash = 0
   for (let i = 0; i < seed.length; i++) {
