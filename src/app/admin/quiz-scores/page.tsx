@@ -478,7 +478,7 @@ export default function AdminQuizScores() {
                         <div className="flex-shrink-0 h-10 w-10">
                           <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center">
                             <span className="text-white font-medium text-sm">
-                              {score.user.firstName.charAt(0)}{score.user.lastName.charAt(0)}
+                              {score.user.firstName?.charAt(0) || ''}{score.user.lastName?.charAt(0) || ''}
                             </span>
                           </div>
                         </div>

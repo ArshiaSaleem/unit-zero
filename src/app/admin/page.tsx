@@ -604,14 +604,14 @@ function BulkUploadModal({ onClose, onUploadComplete }: { onClose: () => void, o
                 <p className="font-semibold text-green-900">{result.message}</p>
               </div>
               
-              {result.results.successful.length > 0 && (
+              {result?.results?.successful?.length > 0 && (
                 <div>
                   <p className="text-green-700 font-semibold mb-2">
-                    ✅ Successful ({result.results.successful.length}):
+                    ✅ Successful ({result?.results?.successful?.length || 0}):
                   </p>
                   <div className="bg-green-50 rounded-lg p-3 max-h-32 overflow-y-auto">
                     <ul className="text-green-800 text-sm space-y-1">
-                      {result.results.successful.map((item: { row: number; data: unknown }, index: number) => (
+                      {result?.results?.successful?.map((item: { row: number; data: unknown }, index: number) => (
                         <li key={index} className="flex items-center gap-2">
                           <span className="w-1 h-1 bg-green-600 rounded-full"></span>
                           {item.data as string}
@@ -622,14 +622,14 @@ function BulkUploadModal({ onClose, onUploadComplete }: { onClose: () => void, o
                 </div>
               )}
               
-              {result.results.failed.length > 0 && (
+              {result?.results?.failed?.length > 0 && (
                 <div>
                   <p className="text-red-700 font-semibold mb-2">
-                    ❌ Failed ({result.results.failed.length}):
+                    ❌ Failed ({result?.results?.failed?.length || 0}):
                   </p>
                   <div className="bg-red-50 rounded-lg p-3 max-h-32 overflow-y-auto">
                     <ul className="text-red-800 text-sm space-y-1">
-                      {result.results.failed.map((item: { row: number; error: string }, index: number) => (
+                      {result?.results?.failed?.map((item: { row: number; error: string }, index: number) => (
                         <li key={index} className="flex items-center gap-2">
                           <span className="w-1 h-1 bg-red-600 rounded-full"></span>
                           Row {item.row}: <span className="text-red-600">({item.error})</span>
