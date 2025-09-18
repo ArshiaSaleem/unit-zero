@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-          const courses = await prisma.course.findMany({
+    const courses = await prisma.course.findMany({
             include: {
               teacher: {
                 select: {
