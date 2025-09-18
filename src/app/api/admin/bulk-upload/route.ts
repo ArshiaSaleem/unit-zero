@@ -31,8 +31,8 @@ export async function POST(request: NextRequest) {
     }
 
     const defaultPassword = role === 'STUDENT' 
-      ? process.env.DEFAULT_STUDENT_PASSWORD!
-      : process.env.DEFAULT_TEACHER_PASSWORD!
+      ? process.env.DEFAULT_STUDENT_PASSWORD || 'student123'
+      : process.env.DEFAULT_TEACHER_PASSWORD || 'teacher123'
 
     const hashedPassword = await hashPassword(defaultPassword)
 
