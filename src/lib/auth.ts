@@ -2,6 +2,13 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { prisma } from './prisma'
 
+// Use a resilient secret to avoid global auth outages if env is missing
+// Prefer server envs, but fall back to a local default so APIs don't 500
+const JWT_SECRET: string =
+  process.env.JWT_SECRET ||
+  process.env.NEXT_PUBLIC_JWT_SECRET ||
+  'unit-zero-development-secret'
+
 export interface User {
   id: string
   email: string
@@ -26,14 +33,14 @@ export function generateToken(user: User): string {
       email: user.email, 
       role: user.role 
     },
-    process.env.JWT_SECRET!,
+    JWT_SECRET,
     { expiresIn: '7d' }
   )
 }
 
 export function verifyToken(token: string): User | null {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string; email: string; role: string }
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: string; email: string; role: string }
     return {
       id: decoded.id,
       email: decoded.email,
