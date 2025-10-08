@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
         attempt.status = 'SUCCESS'
         results.final_result = {
           working_strategy: strategy.name,
-          working_url: strategy.url.substring(0, 50) + '...'
+          working_url: (strategy.url || '').substring(0, 50) + '...'
         }
       }
 
