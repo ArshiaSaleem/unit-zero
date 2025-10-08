@@ -19,8 +19,8 @@ export interface User {
 }
 
 export async function hashPassword(password: string): Promise<string> {
-  // Use lower rounds for serverless (Vercel free tier has 10s timeout)
-  return bcrypt.hash(password, 8)
+  // Use very low rounds for serverless to prevent function timeouts
+  return bcrypt.hash(password, 4)
 }
 
 export async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
