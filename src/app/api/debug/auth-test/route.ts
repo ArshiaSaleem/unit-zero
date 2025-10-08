@@ -17,14 +17,30 @@ export async function GET(request: NextRequest) {
     
     // Test 2: Database connection
     const dbStart = Date.now()
-    const userCount = await prisma.user.count()
+    let userCount = 0
+    try {
+      userCount = await prisma.user.count()
+    } catch (dbErr) {
+      console.error('DB count error (first attempt):', dbErr)
+      await new Promise((r) => setTimeout(r, 200))
+      userCount = await prisma.user.count()
+    }
     const dbTime = Date.now() - dbStart
     
     // Test 3: User lookup
     const lookupStart = Date.now()
-    const admin = await prisma.user.findFirst({
-      where: { email: { equals: 'admin@unitzero.com', mode: 'insensitive' } }
-    })
+    let admin = null
+    try {
+      admin = await prisma.user.findFirst({
+        where: { email: { equals: 'admin@unitzero.com', mode: 'insensitive' } }
+      })
+    } catch (lookupErr) {
+      console.error('DB lookup error (first attempt):', lookupErr)
+      await new Promise((r) => setTimeout(r, 200))
+      admin = await prisma.user.findFirst({
+        where: { email: { equals: 'admin@unitzero.com', mode: 'insensitive' } }
+      })
+    }
     const lookupTime = Date.now() - lookupStart
     
     // Test 4: Authentication

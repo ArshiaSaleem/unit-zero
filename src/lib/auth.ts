@@ -67,10 +67,21 @@ export async function authenticateUser(email: string, password: string): Promise
     if (!user) {
       user = await prisma.user.findUnique({ where: { email: inputEmail } })
     }
-  } catch (dbError) {
-    console.error('[AUTH] prisma.findUnique error', dbError)
-    // Surface a null so caller can respond gracefully; logs carry details
-    return null
+  } catch (dbError: any) {
+    console.error('[AUTH] prisma.findUnique error (first attempt)', dbError)
+    // Transient connection errors sometimes resolve on retry in serverless
+    await new Promise((resolve) => setTimeout(resolve, 200))
+    try {
+      user = await prisma.user.findFirst({
+        where: { email: { equals: inputEmail, mode: 'insensitive' } }
+      })
+      if (!user) {
+        user = await prisma.user.findUnique({ where: { email: inputEmail } })
+      }
+    } catch (retryError) {
+      console.error('[AUTH] prisma.findUnique error (second attempt)', retryError)
+      return null
+    }
   }
 
   if (!user) {
