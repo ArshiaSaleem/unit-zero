@@ -79,12 +79,25 @@ export async function authenticateUser(email: string, password: string): Promise
   const hasHash = typeof user.password === 'string' && user.password.startsWith('$2')
   if (!hasHash) {
     console.log('[AUTH] stored password not a bcrypt hash', { email })
-  }
-
-  const isValidPassword = await verifyPassword(password, user.password)
-  console.log('[AUTH] password compare result', { email, isValidPassword })
-  if (!isValidPassword) {
-    return null
+    // Backward compatibility: allow plain-text equality once, then rehash
+    if (password === user.password) {
+      console.log('[AUTH] plain-text password matched; upgrading to bcrypt', { email })
+      try {
+        const newHash = await hashPassword(password)
+        await prisma.user.update({ where: { id: user.id }, data: { password: newHash } })
+      } catch (e) {
+        console.error('[AUTH] failed to upgrade password hash', e)
+      }
+      // proceed as valid
+    } else {
+      return null
+    }
+  } else {
+    const isValidPassword = await verifyPassword(password, user.password)
+    console.log('[AUTH] password compare result', { email, isValidPassword })
+    if (!isValidPassword) {
+      return null
+    }
   }
 
   return {
