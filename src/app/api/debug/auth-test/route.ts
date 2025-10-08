@@ -64,14 +64,15 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json(result)
     
-  } catch (error) {
+  } catch (error: unknown) {
     const totalTime = Date.now() - startTime
     
-    console.error('❌ Production auth debug failed:', error)
+    const message = error instanceof Error ? error.message : String(error)
+    console.error('❌ Production auth debug failed:', message)
     
     return NextResponse.json({
       success: false,
-      error: error.message,
+      error: message,
       timing: { total: totalTime },
       environment: {
         DATABASE_URL: !!process.env.DATABASE_URL,
