@@ -54,12 +54,18 @@ export function verifyToken(token: string): User | null {
 }
 
 export async function authenticateUser(email: string, password: string): Promise<User | null> {
-  console.log('[AUTH] authenticateUser start', { email })
+  const inputEmail = (email || '').trim()
+  console.log('[AUTH] authenticateUser start', { email: inputEmail })
   let user: any
   try {
-    user = await prisma.user.findUnique({
-      where: { email }
+    // Case-insensitive lookup to tolerate email casing differences
+    user = await prisma.user.findFirst({
+      where: { email: { equals: inputEmail, mode: 'insensitive' } }
     })
+    // Fallback to exact match if needed
+    if (!user) {
+      user = await prisma.user.findUnique({ where: { email: inputEmail } })
+    }
   } catch (dbError) {
     console.error('[AUTH] prisma.findUnique error', dbError)
     // Surface a null so caller can respond gracefully; logs carry details
@@ -72,16 +78,16 @@ export async function authenticateUser(email: string, password: string): Promise
   }
 
   if (!user.isActive) {
-    console.log('[AUTH] user inactive', { email, isActive: user.isActive })
+    console.log('[AUTH] user inactive', { email: inputEmail, isActive: user.isActive })
     return null
   }
 
   const hasHash = typeof user.password === 'string' && user.password.startsWith('$2')
   if (!hasHash) {
-    console.log('[AUTH] stored password not a bcrypt hash', { email })
+    console.log('[AUTH] stored password not a bcrypt hash', { email: inputEmail })
     // Backward compatibility: allow plain-text equality once, then rehash
     if (password === user.password) {
-      console.log('[AUTH] plain-text password matched; upgrading to bcrypt', { email })
+      console.log('[AUTH] plain-text password matched; upgrading to bcrypt', { email: inputEmail })
       try {
         const newHash = await hashPassword(password)
         await prisma.user.update({ where: { id: user.id }, data: { password: newHash } })
@@ -94,7 +100,7 @@ export async function authenticateUser(email: string, password: string): Promise
     }
   } else {
     const isValidPassword = await verifyPassword(password, user.password)
-    console.log('[AUTH] password compare result', { email, isValidPassword })
+    console.log('[AUTH] password compare result', { email: inputEmail, isValidPassword })
     if (!isValidPassword) {
       return null
     }
