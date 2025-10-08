@@ -54,15 +54,28 @@ export function verifyToken(token: string): User | null {
 }
 
 export async function authenticateUser(email: string, password: string): Promise<User | null> {
+  console.log('[AUTH] authenticateUser start', { email })
   const user = await prisma.user.findUnique({
     where: { email }
   })
 
-  if (!user || !user.isActive) {
+  if (!user) {
+    console.log('[AUTH] user not found', { email })
     return null
   }
 
+  if (!user.isActive) {
+    console.log('[AUTH] user inactive', { email, isActive: user.isActive })
+    return null
+  }
+
+  const hasHash = typeof user.password === 'string' && user.password.startsWith('$2')
+  if (!hasHash) {
+    console.log('[AUTH] stored password not a bcrypt hash', { email })
+  }
+
   const isValidPassword = await verifyPassword(password, user.password)
+  console.log('[AUTH] password compare result', { email, isValidPassword })
   if (!isValidPassword) {
     return null
   }
