@@ -55,9 +55,16 @@ export function verifyToken(token: string): User | null {
 
 export async function authenticateUser(email: string, password: string): Promise<User | null> {
   console.log('[AUTH] authenticateUser start', { email })
-  const user = await prisma.user.findUnique({
-    where: { email }
-  })
+  let user: any
+  try {
+    user = await prisma.user.findUnique({
+      where: { email }
+    })
+  } catch (dbError) {
+    console.error('[AUTH] prisma.findUnique error', dbError)
+    // Surface a null so caller can respond gracefully; logs carry details
+    return null
+  }
 
   if (!user) {
     console.log('[AUTH] user not found', { email })
