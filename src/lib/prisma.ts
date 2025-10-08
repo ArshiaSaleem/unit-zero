@@ -4,29 +4,37 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-// In serverless, Postgres connections can be dropped by the provider.
-// Prefer a pooled connection when DATABASE_URL is available.
-function buildPooledDatabaseUrl(rawUrl: string | undefined): string | undefined {
+// Use Vercel's pooled connection URL if available, otherwise add SSL and pooling params
+function getOptimizedDatabaseUrl(): string | undefined {
+  const rawUrl = process.env.DATABASE_URL
   if (!rawUrl) return undefined
+  
+  // Check if we have a pooled URL (Vercel provides this)
+  if (rawUrl.includes('pooler') || rawUrl.includes('pooled')) {
+    return rawUrl
+  }
+  
   try {
     const url = new URL(rawUrl)
-    // If already configured, keep as-is
-    if (url.searchParams.get('pgbouncer') === 'true') return rawUrl
-    // Add pooling-friendly params
+    
+    // Force SSL for production stability
+    url.searchParams.set('sslmode', 'require')
+    
+    // Add connection pooling parameters
     url.searchParams.set('pgbouncer', 'true')
-    // Keep connection concurrency extremely low per lambda
     url.searchParams.set('connection_limit', '1')
-    // Avoid hanging on bad networks
-    url.searchParams.set('connect_timeout', '15')
+    url.searchParams.set('connect_timeout', '10')
+    url.searchParams.set('pool_timeout', '10')
+    
     return url.toString()
   } catch {
     return rawUrl
   }
 }
 
-const pooledUrl = buildPooledDatabaseUrl(process.env.DATABASE_URL)
+const optimizedUrl = getOptimizedDatabaseUrl()
 
 export const prisma =
-  globalForPrisma.prisma ?? new PrismaClient({ datasources: { db: { url: pooledUrl } } })
+  globalForPrisma.prisma ?? new PrismaClient({ datasources: { db: { url: optimizedUrl } } })
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
